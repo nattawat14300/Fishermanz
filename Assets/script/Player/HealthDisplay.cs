@@ -11,7 +11,11 @@ public class HealthDisplay : MonoBehaviour
 
     public Sprite emptyHeart;
     public Sprite fullHeart;
-    public Image[] hearts; 
+    public Image[] hearts;
+
+    public PlayerHealth playerHealth;
+
+
     void Start()
     {
         
@@ -20,6 +24,18 @@ public class HealthDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        health = playerHealth.health;
+        maxHealth = playerHealth.maxHealth; 
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (i < health)
+            {
+                hearts[i].sprite = fullHeart;
+            }
+            else
+            {
+                hearts[i].sprite = emptyHeart;
+            }
+        }
     }
 }

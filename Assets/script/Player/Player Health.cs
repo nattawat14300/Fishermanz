@@ -7,6 +7,10 @@ public class PlayerHealth : MonoBehaviour
     // Start is called before the first frame update
     public int health;
     public int maxHealth = 3;
+
+    public SpriteRenderer playerSr;
+    public PlayerMovementSmooth playerMovement;
+
     void Start()
     {
         health = maxHealth;
@@ -27,8 +31,8 @@ public class PlayerHealth : MonoBehaviour
 
         if (health <= 0)
         {
-            Destroy(gameObject);
-            Debug.Log("Player died!");
+            playerSr.enabled = false;
+            playerMovement.enabled = false;
         }
     }
 
