@@ -5,7 +5,8 @@ using UnityEngine;
 public class OrcaDamage : MonoBehaviour
 {
     // Start is called before the first frame update
-    public int damage = 2;
+    public PlayerHealth playerHealth;
+    public int damage = 1;
     void Start()
     {
         
@@ -21,11 +22,7 @@ public class OrcaDamage : MonoBehaviour
     {
         if(collision.gameObject.tag == "Player")
         {
-            PlayerHealth ph = collision.gameObject.GetComponent<PlayerHealth>();
-            if (ph != null)
-            {
-                ph.TakeDamage(damage);
-            }
+            playerHealth.TakeDamage(damage);
         }
     }
 }

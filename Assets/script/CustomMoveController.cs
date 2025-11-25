@@ -3,8 +3,8 @@
 public class PlayerMovementSmooth : MonoBehaviour
 {
     [Header("Step Settings")]
-    public float stepSize = 0.3f;       // ขยับทีละนิด
-    public float smoothTime = 0.08f;    // ยิ่งน้อย = ยิ่งตอบสนองเร็ว
+    public float stepSize = 0.3f;
+    public float smoothTime = 0.08f;
 
     [Header("Custom Keys")]
     public KeyCode keyUp = KeyCode.W;
@@ -15,39 +15,52 @@ public class PlayerMovementSmooth : MonoBehaviour
     private Vector3 targetPos;
     private Vector3 velocity = Vector3.zero;
 
+    // เก็บscaleตามที่ตั้งไว้จริงใน Inspector
+    private Vector3 baseScale;
+
     void Start()
     {
         targetPos = transform.position;
+
+        // บันทึกสเกลที่ตั้งไว้ใน Inspector (สำคัญ!)
+        baseScale = transform.localScale;
     }
 
     void Update()
     {
-        // input up-down
         if (Input.GetKeyDown(keyUp))
             targetPos += Vector3.up * stepSize;
 
         if (Input.GetKeyDown(keyDown))
             targetPos += Vector3.down * stepSize;
 
-        // input left
+        // Left
         if (Input.GetKeyDown(keyLeft))
         {
             targetPos += Vector3.left * stepSize;
 
-            // 🌟 กลับหน้าปลาไปทางซ้าย
-            transform.localScale = new Vector3(1, 1, 1);
+            // กลับด้านซ้าย โดยใช้ scale จาก Inspector
+            transform.localScale = new Vector3(
+                Mathf.Abs(baseScale.x),
+                baseScale.y,
+                baseScale.z
+            );
         }
 
-        // input right
+        // Right
         if (Input.GetKeyDown(keyRight))
         {
             targetPos += Vector3.right * stepSize;
 
-            // 🌟 กลับหน้าปลาไปทางขวา
-            transform.localScale = new Vector3(-1, 1, 1);
+            // กลับด้านขวา โดยใช้ scale เดิม
+            transform.localScale = new Vector3(
+                -Mathf.Abs(baseScale.x),
+                baseScale.y,
+                baseScale.z
+            );
         }
 
-        // Smooth slide ไปหา targetPos
+        // Smooth movement
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPos,
