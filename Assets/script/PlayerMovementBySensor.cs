@@ -4,7 +4,7 @@ public class PlayerMovementBySensor : MonoBehaviour
 {
     [Header("Sensor Input")]
     public ForcePadReader pad;
-    public float threshold = 300f;   // ค่าที่ถือว่า "กดจริง"
+    public float threshold = 300f;
 
     [Header("Step Settings")]
     public float stepSize = 0.3f;
@@ -15,8 +15,8 @@ public class PlayerMovementBySensor : MonoBehaviour
 
     private Vector3 baseScale;
 
-    // ใช้ตรวจว่ากดจาก 0 → 1 (กันเด้งรัว)
-    private bool lastF1, lastF2, lastF3, lastF4, lastF5;
+    // ใช้ตรวจ 0 → 1 (กันเด้งซ้ำ)
+    private bool lastLeft, lastRight, lastUp, lastDown, lastF5;
 
     void Start()
     {
@@ -28,20 +28,28 @@ public class PlayerMovementBySensor : MonoBehaviour
     {
         if (pad == null) return;
 
-        bool f1 = pad.f1 > threshold;   // LEFT
-        bool f2 = pad.f2 > threshold;   // RIGHT
-        bool f3 = pad.f3 > threshold;   // UP
-        bool f4 = pad.f4 > threshold;   // DOWN
-        bool f5 = pad.f5 > threshold;   // ACTION (optional)
+        // ---------------- Sensor Logic ----------------
+        bool left = pad.f1 > threshold;   // A0 = left
+        bool right = pad.f2 > threshold;   // A1 = right
+        bool up = pad.f3 > threshold;   // A2 = up
 
-        // -------- Movement (Step-by-step) ----------
-        if (f3 && !lastF3)   // UP step
+        // A3 และ A4 ต้องกดพร้อมกันถึงจะลง
+        bool down = (pad.f4 > threshold) && (pad.f5 > threshold);
+
+        // ------------------------------------------------
+        // Movement Step-by-Step (Detect rising edge)
+        // ------------------------------------------------
+
+        // Up
+        if (up && !lastUp)
             targetPos += Vector3.up * stepSize;
 
-        if (f4 && !lastF4)   // DOWN step
+        // Down (ต้องกด A3 + A4)
+        if (down && !lastDown)
             targetPos += Vector3.down * stepSize;
 
-        if (f1 && !lastF1)   // LEFT step
+        // Left
+        if (left && !lastLeft)
         {
             targetPos += Vector3.left * stepSize;
 
@@ -52,7 +60,8 @@ public class PlayerMovementBySensor : MonoBehaviour
             );
         }
 
-        if (f2 && !lastF2)   // RIGHT step
+        // Right
+        if (right && !lastRight)
         {
             targetPos += Vector3.right * stepSize;
 
@@ -63,11 +72,7 @@ public class PlayerMovementBySensor : MonoBehaviour
             );
         }
 
-        // Optional Action
-        if (f5 && !lastF5)
-            Debug.Log("Sensor Action Button!");
-
-        // ---------- Smooth Move ----------
+        // Smooth movement
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPos,
@@ -75,11 +80,10 @@ public class PlayerMovementBySensor : MonoBehaviour
             smoothTime
         );
 
-        // ---------- update last states ----------
-        lastF1 = f1;
-        lastF2 = f2;
-        lastF3 = f3;
-        lastF4 = f4;
-        lastF5 = f5;
+        // Update last states
+        lastLeft = left;
+        lastRight = right;
+        lastUp = up;
+        lastDown = down;
     }
 }
