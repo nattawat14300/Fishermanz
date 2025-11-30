@@ -1,0 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class ChangerScreen : MonoBehaviour
+{
+    public void Load_Scene(string ScreenName)
+    {
+        SceneManager.LoadScene("Loading_screen");
+    }
+    public void Gameplay_Scene(string ScreenName)
+    {
+        SceneManager.LoadScene("gameplay_screen");
+    }
+    public void Quiz_Scene(string ScreenName)
+    {
+        SceneManager.LoadScene("Quiz_screen");
+    }
+}
