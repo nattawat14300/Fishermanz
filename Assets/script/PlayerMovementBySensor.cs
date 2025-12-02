@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TMPro;
 
 public class PlayerMovementBySensor : MonoBehaviour
 {
@@ -85,5 +86,7 @@ public class PlayerMovementBySensor : MonoBehaviour
         lastRight = right;
         lastUp = up;
         lastDown = down;
+        Debug.Log("Timescale" + Time.timeScale);
     }
+
 }

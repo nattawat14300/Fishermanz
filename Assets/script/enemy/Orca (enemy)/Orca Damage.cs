@@ -4,25 +4,18 @@ using UnityEngine;
 
 public class OrcaDamage : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public PlayerHealth playerHealth;
     public int damage = 1;
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.tag == "Player")
+        if (collision.gameObject.CompareTag("Player"))
         {
-            playerHealth.TakeDamage(damage);
+            PlayerHealth ph = collision.gameObject.GetComponent<PlayerHealth>();
+
+            if (ph != null)
+            {
+                ph.TakeDamage(damage);
+            }
         }
     }
 }

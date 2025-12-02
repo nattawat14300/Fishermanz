@@ -1,51 +1,48 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public GameManager gameManager;
     public int health;
     public int maxHealth = 3;
-    public GameObject gameOverUI;
-    public GameObject player;
+    public CountdownTimer timer;
 
-    public SpriteRenderer playerSr;
-    public PlayerMovementSmooth playerMovement;
+    [Header("Player Components")]
+    public SpriteRenderer PlayerSr;
+    public PlayerStepMove playerStepMove;
 
-    private bool isDead = false;
+    [Header("UI")]
+    public GameObject gameOverPanel; // << assign panel ใน Inspector
 
     void Start()
     {
         health = maxHealth;
-
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy"))
         {
             TakeDamage(1);
         }
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int damage)
     {
-        if (isDead) return;
+        health -= damage;
 
-        health -= amount;
-        Debug.Log("Player took damage! Current health: " + health);
-
-        if (health <= 0 && !isDead)
+        if (health <= 0)
         {
-            isDead = true;
-            if (gameManager != null) gameManager.gameOver();
-            if (playerSr != null) playerSr.enabled = false;
-            if (playerMovement != null) playerMovement.enabled = false;
-            gameObject.SetActive(false);
+            health = 0;
+
+            if (PlayerSr != null) PlayerSr.enabled = false;
+            if (playerStepMove != null) playerStepMove.enabled = false;
+
+            if (gameOverPanel != null) gameOverPanel.SetActive(true);
+
+            if (timer != null)
+                timer.PlayerDied(); // แจ้ง Timer ว่าแพ้
         }
     }
-
-   
-
 }
