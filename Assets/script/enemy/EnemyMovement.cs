@@ -35,6 +35,9 @@ public class EnemyMovement : MonoBehaviour
     }
 
     // ✅ ถ้าออกนอกจอ → ทำลายตัวเอง
-  
+    void OnBecameInvisible()
+    {
+        Destroy(gameObject);
+    }
 }
 

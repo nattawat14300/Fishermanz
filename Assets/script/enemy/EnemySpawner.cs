@@ -31,14 +31,14 @@ public class EnemySpawner : MonoBehaviour
         Vector3 spawnPosition = transform.position;
 
         // 2. ✅ แก้ไข: สั่ง Instantiate Enemy และเก็บผลลัพธ์ไว้ในตัวแปร 'enemy'
-        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity); 
 
         // 3. ✅ แก้ไข: ย้ายโค้ด Flip Sprite มาทำงานบน GameObject ที่ถูกสร้าง (enemy)
         if (flipSpriteX)
         {
             // ต้องเรียก GetComponent บนตัว 'enemy' ที่เพิ่งสร้าง
             SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
-            if (sr != null)
+            if (sr != null) 
             {
                 sr.flipX = true;
             }

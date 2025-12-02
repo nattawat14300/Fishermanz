@@ -1033,7 +1033,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2044660961}
   sizeX: 1
   sizeY: 1
-  spawnerLifetime: 20
+  spawnerLifetime: 0
   flipSpriteX: 0
 --- !u!4 &677462186
 Transform:
@@ -1082,7 +1082,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2044660961}
   sizeX: 1
   sizeY: 1
-  spawnerLifetime: 20
+  spawnerLifetime: 0
   flipSpriteX: 0
 --- !u!4 &710375169
 Transform:
@@ -1473,7 +1473,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2044660961}
   sizeX: 1
   sizeY: 1
-  spawnerLifetime: 20
+  spawnerLifetime: 0
   flipSpriteX: 1
 --- !u!4 &1074465496
 Transform:

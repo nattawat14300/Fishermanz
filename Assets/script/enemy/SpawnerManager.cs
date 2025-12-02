@@ -48,9 +48,9 @@ public class SpawnerManager : MonoBehaviour
             return;
         }
 
-        GameObject enemy = spawner.Spawn(); // เรียกใช้งานได้โดยปลอดภัย
+        EnemySpawner enemy = spawners[index]; // เรียกใช้งานได้โดยปลอดภัย
 
-        if (enemy != null)
+        if (enemy == null)
         {
             // ... โค้ดที่เหลือยังคงเดิม
             EnemyMovement em = enemy.GetComponent<EnemyMovement>();
