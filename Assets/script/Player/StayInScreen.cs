@@ -1,20 +1,36 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-public class StayInScreen : MonoBehaviour
+[RequireComponent(typeof(Collider2D))]
+public class ClampPlayerToScreen : MonoBehaviour
 {
-    public Camera cam;
-    public float skin = 0.01f;
-    Collider2D col;
-    Vector2 halfExtents;
-    float halfWidth, halfHeight;
+    [Header("Camera & Padding")]
+    public Camera cam;             // ถ้าว่าง จะใช้ Camera.main
+    public Vector2 padding = new Vector2(0.1f, 0.1f); // ระยะเว้นขอบ
+
+    private Collider2D col;
+    private Vector2 halfExtents;
+    private float halfWidth, halfHeight;
 
     void Awake()
     {
         if (cam == null) cam = Camera.main;
+
         col = GetComponent<Collider2D>();
-        UpdateCameraBounds();
         UpdateHalfExtents();
+        UpdateCameraBounds();
+    }
+
+    void Update()
+    {
+        UpdateCameraBounds();
+        Vector3 clampedPos = ClampPosition(transform.position);
+        transform.position = clampedPos;
+    }
+
+    void UpdateHalfExtents()
+    {
+        var b = col.bounds;
+        halfExtents = (Vector2)b.extents;
     }
 
     void UpdateCameraBounds()
@@ -23,24 +39,18 @@ public class StayInScreen : MonoBehaviour
         halfWidth = halfHeight * cam.aspect;
     }
 
-    void UpdateHalfExtents()
-    {
-        var b = col.bounds;
-        halfExtents = (Vector2)b.extents;
-        halfExtents = Vector2.Max(halfExtents - Vector2.one * skin, Vector2.zero);
-    }
-
-    public Vector2 ClampPosition(Vector2 desired)
+    public Vector3 ClampPosition(Vector3 desired)
     {
         Vector3 camPos = cam.transform.position;
-        float left = camPos.x - halfWidth + halfExtents.x;
-        float right = camPos.x + halfWidth - halfExtents.x;
-        float bottom = camPos.y - halfHeight + halfExtents.y;
-        float top = camPos.y + halfHeight - halfExtents.y;
 
-        Vector2 clamped = desired;
-        clamped.x = Mathf.Clamp(desired.x, left, right);
-        clamped.y = Mathf.Clamp(desired.y, bottom, top);
-        return clamped;
+        float left = camPos.x - halfWidth + halfExtents.x + padding.x;
+        float right = camPos.x + halfWidth - halfExtents.x - padding.x;
+        float bottom = camPos.y - halfHeight + halfExtents.y + padding.y;
+        float top = camPos.y + halfHeight - halfExtents.y - padding.y;
+
+        float clampedX = Mathf.Clamp(desired.x, left, right);
+        float clampedY = Mathf.Clamp(desired.y, bottom, top);
+
+        return new Vector3(clampedX, clampedY, desired.z);
     }
 }

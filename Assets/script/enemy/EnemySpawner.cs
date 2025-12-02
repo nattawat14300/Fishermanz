@@ -1,49 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
-    
 {
-    [SerializeField] GameObject enemyPrefab;
+    [Header("Enemy Prefab")]
+    public GameObject enemyPrefab;
 
-    // พื้นที่สุ่ม spawn
-    [SerializeField] float sizeX = 1f;
-    [SerializeField] float sizeY = 1f;
+    [Header("Spawn Area")]
+    public float sizeX = 1f;
+    public float sizeY = 1f;
 
-    // อายุศัตรูหลังเกิด
-    [SerializeField] float enemyLifeTime = 10f;
+    [Header("Enemy Settings")]
+    public float enemyLifeTime = 10f; // optional: กำหนด auto destroy หลังเวลา
 
-    // Manager จะเรียกใช้
-
-    public int spawnerID = 1;
     public void Spawn()
     {
+        if (enemyPrefab == null)
+        {
+            Debug.LogWarning("EnemyPrefab not assigned in " + gameObject.name);
+            return;
+        }
+
+        // Random position ภายในพื้นที่
         float xPos = (Random.value - 0.5f) * 2 * sizeX + transform.position.x;
         float yPos = (Random.value - 0.5f) * 2 * sizeY + transform.position.y;
 
         GameObject enemy = Instantiate(enemyPrefab, new Vector3(xPos, yPos, 0), Quaternion.identity);
-        Destroy(enemy, enemyLifeTime);
 
-        if (spawnerID == 2)
+        // ถ้าต้องการ auto destroy หลังเวลาที่กำหนด
+        if (enemyLifeTime > 0f)
         {
-            SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.flipX = true; // หรือ false แล้วแต่สไปรต์
-            }
+            Destroy(enemy, enemyLifeTime);
         }
-
-        if (spawnerID == 4)
-        {
-            SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.flipX = true; // หรือ false แล้วแต่สไปรต์
-            }
-        }
-
-        Destroy(enemy, enemyLifeTime);
     }
 }
-

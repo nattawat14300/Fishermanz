@@ -5,39 +5,39 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
 
-    public float moveSpeed = 3f;
-    private Vector3 direction;
-    private bool isStopped = false;
+      public float moveSpeed = 3f;
+
+    private Vector3 moveDir;
+    private bool hasLockedDirection = false;
 
     void Start()
     {
-        // หาตำแหน่ง Player
+        // หา Player
         GameObject player = GameObject.FindGameObjectWithTag("Player");
 
-        if (player != null)
+        if (player == null)
         {
-            // คำนวณทิศทางครั้งเดียว
-            direction = (player.transform.position - transform.position).normalized;
+            Debug.LogError("Player not found! Make sure Player has tag = Player");
+            return;
         }
-        else
-        {
-            // ถ้าไม่เจอ player ก็ให้ไปทางขวาแก้ขัด
-            direction = Vector3.right;
-        }
+
+        // ✅ ล็อกทิศทางไปยังตำแหน่ง Player แค่ครั้งเดียว
+        moveDir = (player.transform.position - transform.position).normalized;
+        hasLockedDirection = true;
     }
 
     void Update()
     {
-        // หยุดการเคลื่อนที่
-        if (isStopped) return;
+        if (!hasLockedDirection) return;
 
-        // เดินทางไปตามทิศเดิมแบบเส้นตรง
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        // ✅ เคลื่อนที่ผ่านตำแหน่ง player ต่อไปเรื่อย ๆ
+        transform.position += moveDir * moveSpeed * Time.deltaTime;
     }
 
-    // ให้ Player เรียกใช้ได้
-    public void StopMove(bool stop)
+    // ✅ ถ้าออกนอกจอ → ทำลายตัวเอง
+    void OnBecameInvisible()
     {
-        isStopped = stop;
+        Destroy(gameObject);
     }
 }
+
