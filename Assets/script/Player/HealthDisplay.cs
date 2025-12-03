@@ -25,7 +25,7 @@ public class HealthDisplay : MonoBehaviour
     {
         if (playerHealth == null || hearts.Length == 0) return;
 
-        int health = playerHealth.health;
+        int health = playerHealth.health;      // property health ใน PlayerHealth
         int maxHealth = playerHealth.maxHealth;
 
         for (int i = 0; i < hearts.Length; i++)

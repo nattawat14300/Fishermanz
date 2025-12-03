@@ -91,15 +91,21 @@ public class SerialManager : MonoBehaviour
             try
             {
                 string line = serial.ReadLine();
-
                 lock (lockObject)
                 {
-                    latestLine = line;
+                    latestLine = line; // หรือใช้ Queue<string> เก็บหลาย packet
                 }
             }
-            catch { }
+            catch (TimeoutException) { } // ปกติไม่มีข้อมูล
+            catch (Exception ex)
+            {
+                Debug.LogError("[SerialManager] " + ex.Message);
+            }
+
+            Thread.Sleep(1); // ลด CPU load
         }
     }
+
 
     // ===============================
     //        Update: Parse Data

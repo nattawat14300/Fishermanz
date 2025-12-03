@@ -1,61 +1,70 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("HP")]
+    [Header("HP Settings")]
     public int maxHealth = 3;
-     public int health;          // optional attribute ReadOnly requires custom inspector; left for clarity
-
-    [Header("References")]
-    public CountdownTimer timer;           // assign your CountdownTimer (optional)
-    public SpriteRenderer playerSr;        // assign SpriteRenderer (optional)
-    public PlayerStepMove playerStepMove;  // assign movement script (optional)
-    public Collider2D playerCollider;      // assign player's collider (optional)
+    private int currentHealth;
+    public int health { get { return currentHealth; } }
 
     [Header("UI")]
-    public GameObject gameOverPanel;       // assign the Game Over / Lose panel
+    public GameObject gameOverPanel; // Assign Game Over panel in Inspector
 
     [Header("Behavior")]
-    public bool disableOnDeath = true;     // disable sprite & movement when die
-    public bool disableColliderOnDeath = true;
+    public bool disableOnDeath = true;      // ปิด Sprite และ Movement เมื่อ Player ตาย
+    public SpriteRenderer playerSprite;     // Assign SpriteRenderer ของ Player
+    public MonoBehaviour playerMovement;    // Assign script movement ของ Player
+    public Collider2D playerCollider;       // Assign Collider2D ของ Player
 
-    // internal guard to avoid double-death
-    bool isDead = false;
+    // Internal flags
+    private bool isDead = false;
+    private bool justHit = false;
+    private bool invincible = false;    
 
     void Start()
     {
-        health = maxHealth;
+        currentHealth = maxHealth;
 
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
 
-        // auto-find commonly-missed components if not assigned
-        if (playerSr == null) playerSr = GetComponent<SpriteRenderer>();
-        if (playerStepMove == null) playerStepMove = GetComponent<PlayerStepMove>();
+        // Auto-find components ถ้ายังไม่ได้ assign
+        if (playerSprite == null) playerSprite = GetComponent<SpriteRenderer>();
+        if (playerMovement == null) playerMovement = GetComponent<MonoBehaviour>();
         if (playerCollider == null) playerCollider = GetComponent<Collider2D>();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (isDead) return;
+  
 
-        if (other.CompareTag("Enemy"))
-        {
-            TakeDamage(1);
-        }
+    private IEnumerator ResetHit()
+    {
+        yield return new WaitForSeconds(0.2f); // ป้องกันโดน Damage ซ้ำในเฟรมเดียว
+        justHit = false;
     }
 
     public void TakeDamage(int damage)
     {
-        if (isDead) return;
+        if (invincible || isDead) return;
 
-        health -= damage;
-        health = Mathf.Max(0, health);
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        if (health <= 0)
+        if (currentHealth <= 0)
         {
             Die();
         }
+
+        StartCoroutine(Invincible());
+    }
+
+
+    IEnumerator Invincible()
+    {
+        invincible = true;
+        yield return new WaitForSeconds(1f); // กันโดนซ้ำ 1 วิ
+        invincible = false;
     }
 
     private void Die()
@@ -63,40 +72,33 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // disable visuals / movement if desired
+        // ปิด Sprite และ Movement
         if (disableOnDeath)
         {
-            if (playerSr != null) playerSr.enabled = false;
-            if (playerStepMove != null) playerStepMove.enabled = false;
+            if (playerSprite != null) playerSprite.enabled = false;
+            if (playerMovement != null) playerMovement.enabled = false;
         }
 
-        if (disableColliderOnDeath && playerCollider != null)
-            playerCollider.enabled = false;
+        // ปิด Collider
+        if (playerCollider != null) playerCollider.enabled = false;
 
-        // show panel (game over)
+        // แสดง Game Over Panel
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
-
-        // notify timer that player died (so it can show lose panel if remainingTime > 0)
-        if (timer != null)
-            timer.PlayerDied();
-
-        // OPTIONAL: you may want to pause other game systems (enemies) here.
-        // Example: Stop all EnemyMovement scripts:
-        // var enemies = FindObjectsOfType<EnemyMovement>();
-        // foreach (var e in enemies) e.StopMove(true);
     }
 
-    // Optional helper to revive / restart the level
     public void RestartLevel()
     {
-        // hide panel
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
 
-        // restore time scale in case other code changed it
         Time.timeScale = 1f;
-
-        // reload current scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    // Optional: Get current health
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
     }
 }
