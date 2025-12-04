@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
 
 public class CountdownTimer : MonoBehaviour
 {
+    [Header("Orca Panel")]
+    public GameObject orcaPanel;
+    public bool enableOrca = true;     // เปิด/ปิด ระบบ Orca
+    public float orcaTime = 60f;       // เวลาที่ Orca จะโผล่ (1 นาที)
+    private bool orcaShown = false;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float remainingTime = 60f;
-
+    public static bool IsGameReady = false;
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
@@ -15,6 +21,8 @@ public class CountdownTimer : MonoBehaviour
 
     private void Start()
     {
+        IsGameReady = false;
+
         if (timerText == null)
             Debug.LogError("Timer Text not assigned!");
 
@@ -24,9 +32,26 @@ public class CountdownTimer : MonoBehaviour
         UpdateTimerUI();
     }
 
+    private void TriggerOrca()
+    {
+        orcaShown = true;
+        timerRunning = false;
+
+        if (orcaPanel != null)
+            orcaPanel.SetActive(true);
+
+        Time.timeScale = 0f; // หยุดเกม
+    }
+
+
     private void Update()
     {
         if (!timerRunning || !playerAlive) return;
+
+        if (enableOrca && !orcaShown && remainingTime <= orcaTime)
+        {
+            TriggerOrca();
+        }
 
         if (remainingTime > 0)
         {
@@ -67,4 +92,16 @@ public class CountdownTimer : MonoBehaviour
             losePanel.SetActive(true); // แพ้เพราะตายก่อนเวลา
         }
     }
+
+    public void OnOrcaNext()
+    {
+        if (orcaPanel != null)
+            orcaPanel.SetActive(false);
+
+        Time.timeScale = 1f;   // เล่นเกมต่อ
+        timerRunning = true;
+
+        IsGameReady = true;
+    }
+
 }

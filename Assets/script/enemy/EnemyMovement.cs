@@ -26,9 +26,11 @@ public class EnemyMovement : MonoBehaviour
 
     void Update()
     {
-        // เดินไปในทิศทางที่ล็อกไว้
+        if (!CountdownTimer.IsGameReady) return;   // ❌ ยังไม่เริ่ม → อย่าเดิน
+
         transform.position += moveDir * moveSpeed * Time.deltaTime;
     }
+
 
     void OnTriggerEnter2D(Collider2D other)
     {

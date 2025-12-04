@@ -25,27 +25,22 @@ public class EnemySpawner : MonoBehaviour
     // Spawn Enemy และ return GameObject
     public GameObject Spawn()
     {
+        if (!CountdownTimer.IsGameReady) return null;   // ❌ ถ้ายังไม่กด Next → ไม่ spawn
+
         if (enemyPrefab == null) return null;
 
-        // 1. ✅ แก้ไข: กำหนดตำแหน่งเกิด (ใช้ตำแหน่ง Spawner ตรงๆ ตามที่คุณต้องการก่อนหน้า)
         Vector3 spawnPosition = transform.position;
+        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
-        // 2. ✅ แก้ไข: สั่ง Instantiate Enemy และเก็บผลลัพธ์ไว้ในตัวแปร 'enemy'
-        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity); 
-
-        // 3. ✅ แก้ไข: ย้ายโค้ด Flip Sprite มาทำงานบน GameObject ที่ถูกสร้าง (enemy)
         if (flipSpriteX)
         {
-            // ต้องเรียก GetComponent บนตัว 'enemy' ที่เพิ่งสร้าง
             SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
-            if (sr != null) 
-            {
-                sr.flipX = true;
-            }
+            if (sr != null) sr.flipX = true;
         }
 
         return enemy;
     }
+
 
     void OnDrawGizmosSelected()
     {
