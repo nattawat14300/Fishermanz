@@ -18,6 +18,8 @@ public class CountdownTimer : MonoBehaviour
 
     private bool timerRunning = true;
     private bool playerAlive = true;
+    private bool gameEnded = false;
+    
 
     private void Start()
     {
@@ -46,7 +48,7 @@ public class CountdownTimer : MonoBehaviour
 
     private void Update()
     {
-        if (!timerRunning || !playerAlive) return;
+        if (gameEnded || !timerRunning || !playerAlive) return;
 
         if (enableOrca && !orcaShown && remainingTime <= orcaTime)
         {
@@ -65,6 +67,7 @@ public class CountdownTimer : MonoBehaviour
         }
     }
 
+
     private void UpdateTimerUI()
     {
         int minutes = Mathf.FloorToInt(remainingTime / 60f);
@@ -74,7 +77,10 @@ public class CountdownTimer : MonoBehaviour
 
     private void OnTimeUp()
     {
+        if(gameEnded) return;
+
         timerRunning = false;
+        gameEnded = true;   
 
         if (playerAlive && winPanel != null)
         {
@@ -86,12 +92,16 @@ public class CountdownTimer : MonoBehaviour
     // เรียกเมื่อผู้เล่นตายก่อนหมดเวลา
     public void PlayerDied()
     {
+        if (gameEnded) return;
+
         playerAlive = false;
         timerRunning = false;
+        gameEnded = true;
 
         if (remainingTime > 0 && losePanel != null)
         {
-            losePanel.SetActive(true); // แพ้เพราะตายก่อนเวลา
+            losePanel.SetActive(true);
+            Time.timeScale = 0f;   // ✅ หยุดเวลาเมื่อแพ้
         }
     }
 
@@ -105,5 +115,11 @@ public class CountdownTimer : MonoBehaviour
 
         IsGameReady = true;
     }
+
+   
+    
+
+   
+
 
 }

@@ -2756,7 +2756,7 @@ MonoBehaviour:
   enableOrca: 1
   orcaTime: 60
   timerText: {fileID: 1501688055}
-  remainingTime: 120
+  remainingTime: 70
   winPanel: {fileID: 1588305698}
   losePanel: {fileID: 165416537}
 --- !u!4 &1300491966
@@ -3277,7 +3277,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
-  gameOverPanel: {fileID: 165416537}
   disableOnDeath: 1
   playerSprite: {fileID: 0}
   playerMovement: {fileID: 0}
@@ -3294,7 +3293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abcd30eb2f246674388a04e6f7fcb5ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepSize: 3
+  stepSize: 1.5
   smoothTime: 0.08
 --- !u!114 &1448744244
 MonoBehaviour:
@@ -4026,7 +4025,7 @@ Transform:
   m_GameObject: {fileID: 2044660961}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1306.3, y: 542.3, z: -90.894}
+  m_LocalPosition: {x: -1308.6, y: 550.7, z: -90.894}
   m_LocalScale: {x: 6.918201, y: 2.7807214, z: 5.2122364}
   m_ConstrainProportionsScale: 0
   m_Children: []

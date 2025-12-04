@@ -10,7 +10,7 @@ public class PlayerHealth : MonoBehaviour
     public int health { get { return currentHealth; } }
 
     [Header("UI")]
-    public GameObject gameOverPanel; // Assign Game Over panel in Inspector
+    
 
     [Header("Behavior")]
     public bool disableOnDeath = true;      // ปิด Sprite และ Movement เมื่อ Player ตาย
@@ -27,8 +27,7 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
+       
 
         // Auto-find components ถ้ายังไม่ได้ assign
         if (playerSprite == null) playerSprite = GetComponent<SpriteRenderer>();
@@ -72,29 +71,24 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // ปิด Sprite และ Movement
         if (disableOnDeath)
         {
             if (playerSprite != null) playerSprite.enabled = false;
             if (playerMovement != null) playerMovement.enabled = false;
         }
 
-        // ปิด Collider
         if (playerCollider != null) playerCollider.enabled = false;
 
-        // แสดง Game Over Panel
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        // ✅ แจ้ง CountdownTimer ว่า Player ตาย
+        CountdownTimer timer = FindObjectOfType<CountdownTimer>();
+        if (timer != null)
+        {
+            timer.PlayerDied();   // ✅ ให้ CountdownTimer เปิด losePanel และหยุดเวลา
+        }
     }
 
-    public void RestartLevel()
-    {
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
 
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+   
 
     // Optional: Get current health
     public int GetCurrentHealth()
