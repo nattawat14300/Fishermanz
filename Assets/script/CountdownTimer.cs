@@ -75,9 +75,11 @@ public class CountdownTimer : MonoBehaviour
     private void OnTimeUp()
     {
         timerRunning = false;
+
         if (playerAlive && winPanel != null)
         {
-            winPanel.SetActive(true); // ชนะเพราะอยู่ครบเวลา
+            winPanel.SetActive(true); // แสดง Win Panel
+            Time.timeScale = 0f;      // ✅ หยุดเกมเมื่อชนะ
         }
     }
 
