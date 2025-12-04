@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 494f89f06f403904c996bedd01da82cd
+guid: a839b4cae88575c428883ffee2c22322
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -95,7 +95,28 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Ui3gameplayheart1.1 (1)_0
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 70
+        width: 175
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce12746afc305b64cac9d5b2b839d0b3
+      internalID: 1055529588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -106,7 +127,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Ui3gameplayheart1.1 (1)_0: 1055529588
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

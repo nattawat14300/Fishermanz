@@ -1046,7 +1046,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 494f89f06f403904c996bedd01da82cd, type: 3}
+  m_Sprite: {fileID: -254846616, guid: 78d5893050642d3408a4617afda21910, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1174,7 +1174,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 494f89f06f403904c996bedd01da82cd, type: 3}
+  m_Sprite: {fileID: -254846616, guid: 78d5893050642d3408a4617afda21910, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2060,7 +2060,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 494f89f06f403904c996bedd01da82cd, type: 3}
+  m_Sprite: {fileID: -254846616, guid: 78d5893050642d3408a4617afda21910, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3237,8 +3237,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 3
   maxHealth: 3
-  emptyHeart: {fileID: 21300000, guid: 61107a2a69ee34745a519afc99b7f78f, type: 3}
-  fullHeart: {fileID: 21300000, guid: 494f89f06f403904c996bedd01da82cd, type: 3}
+  emptyHeart: {fileID: 1055529588, guid: a839b4cae88575c428883ffee2c22322, type: 3}
+  fullHeart: {fileID: -254846616, guid: 78d5893050642d3408a4617afda21910, type: 3}
   hearts:
   - {fileID: 471647373}
   - {fileID: 362189307}
@@ -4026,8 +4026,8 @@ Transform:
   m_GameObject: {fileID: 2044660961}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1304.37, y: 550.93, z: -90.894}
-  m_LocalScale: {x: 4.014082, y: 1.6134317, z: 3.0242462}
+  m_LocalPosition: {x: -1306.3, y: 542.3, z: -90.894}
+  m_LocalScale: {x: 6.918201, y: 2.7807214, z: 5.2122364}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -4062,7 +4062,7 @@ MonoBehaviour:
   - {fileID: -248656277, guid: 6479b5acc7562ce46befd5b948d8190a, type: 3}
   - {fileID: 1027622681, guid: 6e3fdb9678248b94a84552dcf81a05a5, type: 3}
   - {fileID: -1237491903, guid: 0a2956e1d198ae143b04461c93755a14, type: 3}
-  fps: 8
+  fps: 6
   loop: 1
 --- !u!114 &2044660969
 MonoBehaviour:
