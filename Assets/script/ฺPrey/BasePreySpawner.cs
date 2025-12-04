@@ -78,40 +78,70 @@ public class BasePreySpawner : MonoBehaviour
             return null;
         }
 
-        // ... (โค้ดสุ่มเลือก Prefab และตำแหน่งเหมือนเดิม) ...
+        // 1. สุ่มเลือก Prefab จากลิสต์
         int randomIndex = Random.Range(0, preyPrefabs.Length);
         GameObject preyPrefab = preyPrefabs[randomIndex];
 
+        // 2. กำหนดตำแหน่งเกิดหลัก (Base Spawn Position)
         float randomX = Random.Range(-sizeX, sizeX);
         float randomY = Random.Range(-sizeY, sizeY);
-        Vector3 spawnPosition = transform.position + new Vector3(randomX, randomY, 0);
+        // เปลี่ยนชื่อตัวแปรเป็น baseSpawnPosition เพื่อใช้เป็นจุดอ้างอิงของฝูง
+        Vector3 baseSpawnPosition = transform.position + new Vector3(randomX, randomY, 0);
 
-        GameObject enemy = Instantiate(preyPrefab, spawnPosition, Quaternion.identity);
+        // === NEW: ตรวจสอบและตั้งค่าฝูง ===
+        SchoolingFishComponent schoolComponent = preyPrefab.GetComponent<SchoolingFishComponent>();
 
-        if (flipSpriteX)
+        int spawnCount = 1;
+        float scatterRadius = 0f;
+
+        if (schoolComponent != null)
         {
-            // *** แก้ไข: ใช้ GetComponentInChildren แทน GetComponent ***
-            // นี่คือการค้นหา SpriteRenderer ทั้งในวัตถุหลัก (enemy) และวัตถุลูกทั้งหมด
-            SpriteRenderer sr = enemy.GetComponentInChildren<SpriteRenderer>();
+            // *** แก้ไข: ใช้ Random.Range เพื่อสุ่มจำนวนฝูงระหว่าง Min และ Max ***
+            // (เราใช้ Random.Range แบบ int โดยเพิ่ม 1 ในค่าสูงสุดเพื่อให้ 30 ถูกรวมอยู่ในการสุ่มด้วย)
+            spawnCount = Random.Range(schoolComponent.minSchoolSize, schoolComponent.maxSchoolSize + 1);
+            scatterRadius = schoolComponent.scatterRadius;
+        }
+        // ===============================
 
-            if (sr != null)
+        GameObject firstSpawnedPrey = null; // ใช้เก็บปลาตัวแรกที่สร้าง
+
+        for (int i = 0; i < spawnCount; i++) // วนลูปตามจำนวนฝูง (ถ้าไม่ใช่ฝูง จะวนแค่ 1 ครั้ง)
+        {
+            // 3. คำนวณตำแหน่งที่กระจัดกระจายสำหรับปลาแต่ละตัว
+            // Random.insideUnitCircle จะสุ่ม Vector2 ภายในรัศมี 1.0
+            Vector3 scatterOffset = Random.insideUnitCircle * scatterRadius;
+            Vector3 finalSpawnPosition = baseSpawnPosition + scatterOffset;
+
+            // 4. สั่ง Instantiate Enemy
+            GameObject enemy = Instantiate(preyPrefab, finalSpawnPosition, Quaternion.identity);
+
+            // เก็บปลาตัวแรกไว้เป็นตัวแทนในการ return
+            if (i == 0)
             {
-                sr.flipX = true;
+                firstSpawnedPrey = enemy;
             }
-            else
+
+            // 5. ตั้งค่า Flip Sprite X
+            if (flipSpriteX)
             {
-                Debug.LogWarning("SpriteRenderer component not found on the spawned object or its children for flipping.");
+                SpriteRenderer sr = enemy.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.flipX = true;
+                }
+            }
+
+            // 6. ตั้งค่าทิศทาง
+            Prey preyScript = enemy.GetComponent<Prey>();
+            if (preyScript != null)
+            {
+                // ทุกตัวในฝูงจะวิ่งไปในทิศทางเดียวกัน
+                preyScript.direction = currentDirection;
             }
         }
 
-        // *** ใช้ทิศทางที่ Manager กำหนดให้ ***
-        Prey preyScript = enemy.GetComponent<Prey>();
-        if (preyScript != null)
-        {
-            preyScript.direction = currentDirection;
-        }
-
-        return enemy;
+        // return ตัวปลาตัวแรกที่ถูกสร้าง
+        return firstSpawnedPrey;
     }
 
     void OnDrawGizmosSelected()
