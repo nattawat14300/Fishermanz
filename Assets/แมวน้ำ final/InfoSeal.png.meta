@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9e1685455ebe05b46b569eb1cb2aaed2
+guid: 4914a3492af213b40a91486db06eefd6
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,7 +97,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: InfoTuna_0
+      name: InfoSeal_0
       rect:
         serializedVersion: 2
         x: 132
@@ -111,8 +111,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5eea49e777a6e9a409f8c4138d53c691
-      internalID: 94954414
+      spriteID: 22000280e85cc74458f0697ce3ad4373
+      internalID: 1335072531
       vertices: []
       indices: 
       edges: []
@@ -128,7 +128,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      InfoTuna_0: 94954414
+      InfoSeal_0: 1335072531
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
