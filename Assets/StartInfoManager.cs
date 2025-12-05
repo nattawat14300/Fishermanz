@@ -7,6 +7,11 @@ public class StartInfoManager : MonoBehaviour
     public GameObject[] infoPanels; // ใส่ 3 panel ตามลำดับ
     private int currentIndex = 0;
 
+    public void Awake()
+    {
+        Time.timeScale = 0f;
+    }
+
     void Start()
     {
         // ปิดทุก panel ก่อน
@@ -15,9 +20,7 @@ public class StartInfoManager : MonoBehaviour
 
         // เปิดหน้าแรก
         ShowPanel(0);
-
-        // หยุดเกมไว้ก่อนจนกว่าจะกด Play
-        Time.timeScale = 0f;
+        CountdownTimer.IsGameReady = false;
     }
 
     public void NextInfo()
@@ -38,6 +41,8 @@ public class StartInfoManager : MonoBehaviour
 
         // ให้เกมเดิน
         Time.timeScale = 1f;
+
+        CountdownTimer.IsGameReady = true;
 
         Debug.Log("Game Started!");
     }

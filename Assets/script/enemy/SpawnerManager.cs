@@ -10,8 +10,9 @@ public class SpawnerManager : MonoBehaviour
     [Header("Spawn Timing")]
     public float minCooldown = 1f;
     public float maxCooldown = 3f;
-   
-        private float spawnTimer;
+
+    private float spawnTimer; // ไม่ได้ใช้แล้วแต่ปล่อยไว้ได้
+    private Coroutine spawnRoutine;
 
     void Start()
     {
@@ -20,17 +21,41 @@ public class SpawnerManager : MonoBehaviour
             Debug.LogWarning("No spawners assigned in SpawnerManager!");
             return;
         }
-
-        spawnTimer = Random.Range(minCooldown, maxCooldown);
     }
 
-    void Update()
+    public void StopSpawning()
     {
-        spawnTimer -= Time.deltaTime;
-        if (spawnTimer <= 0f)
+        if (spawnRoutine != null)
         {
+            StopCoroutine(spawnRoutine);
+            spawnRoutine = null;
+            Debug.Log("SpawnerManager: Spawning routine stopped.");
+        }
+    }
+    public void ChangeSpawnRate(float newMinCooldown, float newMaxCooldown)
+    {
+        // 1. หยุด Coroutine เก่าก่อน (ถ้ามี)
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
+        }
+
+        // 2. เริ่ม Coroutine ใหม่ด้วยช่วงเวลาใหม่
+        spawnRoutine = StartCoroutine(SpawnRoutine(newMinCooldown, newMaxCooldown));
+        Debug.Log($"SpawnerManager: Spawn rate changed to {newMinCooldown}s - {newMaxCooldown}s.");
+    }
+
+    /// <summary>
+    /// Coroutine ที่ทำงานซ้ำๆ เพื่อ Spawn Enemy
+    /// </summary>
+    IEnumerator SpawnRoutine(float minCooldown, float maxCooldown)
+    {
+        while (true)
+        {
+            float delay = Random.Range(minCooldown, maxCooldown);
+            yield return new WaitForSeconds(delay);
+
             SpawnFromRandomSpawner();
-            spawnTimer = Random.Range(minCooldown, maxCooldown);
         }
     }
 

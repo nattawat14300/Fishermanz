@@ -1,37 +1,52 @@
 ﻿using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
+using System.Collections;
 
 public class CountdownTimer : MonoBehaviour
 {
+    
+    [SerializeField] float elapsedTime = 0f;
     [Header("Orca Panel")]
     public GameObject orcaPanel;
     public bool enableOrca = true;
-    public float orcaTime = 60f;
+    public float orcaTime = 55f;
     private bool orcaShown = false;
 
     [Header("Timer")]
     [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private float remainingTime = 60f;
+    [SerializeField] private float remainingTime = 120f;
+
+    private float startingTime;
 
     public static bool IsGameReady = false;
+
 
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
 
+    private SpawnerManager spawnerManager;
+    private bool initialSpawnStarted = false;
+
     // ✅ ตัวแปรควบคุมสถานะ (ที่คุณลบหายไป)
     private bool timerRunning = true;
     private bool playerAlive = true;
     private bool gameEnded = false;
-    
+
     // 🎵 Music Manager
     private MusicManager music;
 
     private void Start()
     {
-        Time.timeScale = 1f;
         IsGameReady = false;
+        Time.timeScale = 0f;
 
+        startingTime = remainingTime;
+
+        spawnerManager = FindObjectOfType<SpawnerManager>(); 
+        
+        if (spawnerManager == null) Debug.LogError("SpawnerManager not found!");
         music = FindObjectOfType<MusicManager>();
 
         if (timerText == null)
@@ -40,15 +55,28 @@ public class CountdownTimer : MonoBehaviour
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
 
+        
+
         UpdateTimerUI();
     }
 
     private void Update()
     {
-        if (gameEnded || !timerRunning || !playerAlive) return;
+        elapsedTime = startingTime - remainingTime;
+        if (gameEnded || !timerRunning || !playerAlive || !IsGameReady) return;
 
-        if (enableOrca && !orcaShown && remainingTime <= orcaTime)
+        float oneMinuteElapsed = remainingTime - 60f; 
+
+        if (!initialSpawnStarted && elapsedTime >= 60f && spawnerManager != null)
         {
+            spawnerManager.ChangeSpawnRate(3.0f, 5.0f); 
+            initialSpawnStarted = true;
+            Debug.Log("CountdownTimer: Initial Spawning has started after 1 minute elapsed.");
+        }
+        // เงื่อนไข Orca:
+        if (enableOrca && !orcaShown && elapsedTime >= orcaTime)
+        {
+            if (spawnerManager != null) spawnerManager.StopSpawning();
             TriggerOrca();
         }
 
