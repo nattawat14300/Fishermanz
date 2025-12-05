@@ -62,8 +62,21 @@ public class CountdownTimer : MonoBehaviour
 
     private void Update()
     {
+
         elapsedTime = startingTime - remainingTime;
         if (gameEnded || !timerRunning || !playerAlive || !IsGameReady) return;
+
+        // ✅ ถ้า Orca Panel แสดงอยู่ → กดปุ่มอะไรก็ได้ = Next
+        if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
+        {
+            if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+            {
+                OnOrcaNext();
+            }
+            return; // หยุดไม่ให้ Timer เดินต่อ
+        }
+
+        if (gameEnded || !timerRunning || !playerAlive) return;
 
         float oneMinuteElapsed = remainingTime - 60f; 
 
@@ -90,6 +103,7 @@ public class CountdownTimer : MonoBehaviour
 
         UpdateTimerUI();
     }
+
 
     private void TriggerOrca()
     {
