@@ -4,40 +4,56 @@ using UnityEngine;
 
 public class StartInfoManager : MonoBehaviour
 {
-    public GameObject[] infoPanels; // ใส่ 3 panel ตามลำดับ
+    public GameObject[] infoPanels;
     private int currentIndex = 0;
+    private bool introActive = true;
 
     void Start()
     {
-        // ปิดทุก panel ก่อน
+        // ปิดทุก panel
         for (int i = 0; i < infoPanels.Length; i++)
             infoPanels[i].SetActive(false);
 
         // เปิดหน้าแรก
         ShowPanel(0);
 
-        // หยุดเกมไว้ก่อนจนกว่าจะกด Play
+        // หยุดเกม
         Time.timeScale = 0f;
+    }
+
+    void Update()
+    {
+        if (!introActive) return;
+
+        // ✅ กดปุ่มใดก็ได้ = Next
+        if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+        {
+            // ถ้าอยู่หน้า Panel สุดท้าย → Play
+            if (currentIndex >= infoPanels.Length - 1)
+            {
+                PlayGame();
+            }
+            else
+            {
+                NextInfo();
+            }
+        }
     }
 
     public void NextInfo()
     {
         currentIndex++;
-
-        if (currentIndex < infoPanels.Length)
-        {
-            ShowPanel(currentIndex);
-        }
+        ShowPanel(currentIndex);
     }
 
     public void PlayGame()
     {
-        // ปิดทุก panel
+        // ปิด Panel ทั้งหมด
         for (int i = 0; i < infoPanels.Length; i++)
             infoPanels[i].SetActive(false);
 
-        // ให้เกมเดิน
         Time.timeScale = 1f;
+        introActive = false;
 
         Debug.Log("Game Started!");
     }

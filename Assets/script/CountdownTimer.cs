@@ -45,6 +45,16 @@ public class CountdownTimer : MonoBehaviour
 
     private void Update()
     {
+        // ✅ ถ้า Orca Panel แสดงอยู่ → กดปุ่มอะไรก็ได้ = Next
+        if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
+        {
+            if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+            {
+                OnOrcaNext();
+            }
+            return; // หยุดไม่ให้ Timer เดินต่อ
+        }
+
         if (gameEnded || !timerRunning || !playerAlive) return;
 
         if (enableOrca && !orcaShown && remainingTime <= orcaTime)
@@ -62,6 +72,7 @@ public class CountdownTimer : MonoBehaviour
 
         UpdateTimerUI();
     }
+
 
     private void TriggerOrca()
     {
