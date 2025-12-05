@@ -1269,12 +1269,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595338247}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 84fbfad753e8c434cbe3565dffef1331, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM5
+  portName: COM3
   baudRate: 9600
   autoConnect: 1
 --- !u!4 &595338249
@@ -3170,6 +3170,7 @@ GameObject:
   - component: {fileID: 1448744240}
   - component: {fileID: 1448744241}
   - component: {fileID: 1448744244}
+  - component: {fileID: 1448744245}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -3402,6 +3403,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 1882247421}
   padding: {x: 0.1, y: 0.1}
+--- !u!114 &1448744245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448744231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92d0620ac6806b445adc211f54b43989, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pad: {fileID: 1870824958}
+  threshold: 300
+  stepSize: 1.5
+  smoothTime: 0.08
 --- !u!1 &1450137367
 GameObject:
   m_ObjectHideFlags: 0
