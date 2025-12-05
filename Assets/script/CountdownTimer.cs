@@ -1,35 +1,64 @@
 ﻿using UnityEngine;
 using TMPro;
-using Unity.VisualScripting;
 
 public class CountdownTimer : MonoBehaviour
 {
     [Header("Orca Panel")]
     public GameObject orcaPanel;
-    public bool enableOrca = true;     // เปิด/ปิด ระบบ Orca
-    public float orcaTime = 60f;       // เวลาที่ Orca จะโผล่ (1 นาที)
+    public bool enableOrca = true;
+    public float orcaTime = 60f;
     private bool orcaShown = false;
+
+    [Header("Timer")]
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float remainingTime = 60f;
+
     public static bool IsGameReady = false;
+
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
 
+    // ✅ ตัวแปรควบคุมสถานะ (ที่คุณลบหายไป)
     private bool timerRunning = true;
     private bool playerAlive = true;
     private bool gameEnded = false;
     
+    // 🎵 Music Manager
+    private MusicManager music;
 
     private void Start()
     {
+        Time.timeScale = 1f;
         IsGameReady = false;
+
+        music = FindObjectOfType<MusicManager>();
 
         if (timerText == null)
             Debug.LogError("Timer Text not assigned!");
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
+
+        UpdateTimerUI();
+    }
+
+    private void Update()
+    {
+        if (gameEnded || !timerRunning || !playerAlive) return;
+
+        if (enableOrca && !orcaShown && remainingTime <= orcaTime)
+        {
+            TriggerOrca();
+        }
+
+        remainingTime -= Time.deltaTime;
+
+        if (remainingTime <= 0)
+        {
+            remainingTime = 0;
+            OnTimeUp();
+        }
 
         UpdateTimerUI();
     }
@@ -42,54 +71,31 @@ public class CountdownTimer : MonoBehaviour
         if (orcaPanel != null)
             orcaPanel.SetActive(true);
 
+        if (music != null)
+            music.FadeOutIntro();
+
         Time.timeScale = 0f; // หยุดเกม
-    }
-
-
-    private void Update()
-    {
-        if (gameEnded || !timerRunning || !playerAlive) return;
-
-        if (enableOrca && !orcaShown && remainingTime <= orcaTime)
-        {
-            TriggerOrca();
-        }
-
-        if (remainingTime > 0)
-        {
-            remainingTime -= Time.deltaTime;
-            if (remainingTime <= 0)
-            {
-                remainingTime = 0;
-                OnTimeUp();
-            }
-            UpdateTimerUI();
-        }
-    }
-
-
-    private void UpdateTimerUI()
-    {
-        int minutes = Mathf.FloorToInt(remainingTime / 60f);
-        int seconds = Mathf.FloorToInt(remainingTime % 60f);
-        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     private void OnTimeUp()
     {
-        if(gameEnded) return;
+        if (gameEnded) return;
 
         timerRunning = false;
-        gameEnded = true;   
+        gameEnded = true;
+
+        if (music != null)
+            music.StopMusic();
+
 
         if (playerAlive && winPanel != null)
         {
-            winPanel.SetActive(true); // แสดง Win Panel
-            Time.timeScale = 0f;      // ✅ หยุดเกมเมื่อชนะ
+            winPanel.SetActive(true);
+            Time.timeScale = 0f;   // ชนะ -> หยุดเกม
         }
     }
 
-    // เรียกเมื่อผู้เล่นตายก่อนหมดเวลา
+    // 🔴 เรียกจาก PlayerHealth
     public void PlayerDied()
     {
         if (gameEnded) return;
@@ -98,10 +104,14 @@ public class CountdownTimer : MonoBehaviour
         timerRunning = false;
         gameEnded = true;
 
-        if (remainingTime > 0 && losePanel != null)
+        if (music != null)
+            music.StopMusic();
+
+
+        if (losePanel != null)
         {
             losePanel.SetActive(true);
-            Time.timeScale = 0f;   // ✅ หยุดเวลาเมื่อแพ้
+            Time.timeScale = 0f;  // แพ้ -> หยุดเกม
         }
     }
 
@@ -110,16 +120,22 @@ public class CountdownTimer : MonoBehaviour
         if (orcaPanel != null)
             orcaPanel.SetActive(false);
 
-        Time.timeScale = 1f;   // เล่นเกมต่อ
+        Time.timeScale = 1f;
         timerRunning = true;
-
         IsGameReady = true;
+
+        if (music != null)
+            music.PlayAfterOrca();   // ✅ เปลี่ยนเพลงหลัง Orca
     }
 
-   
-    
-
-   
 
 
+    private void UpdateTimerUI()
+    {
+        if (timerText == null) return;
+
+        int minutes = Mathf.FloorToInt(remainingTime / 60f);
+        int seconds = Mathf.FloorToInt(remainingTime % 60f);
+        timerText.text = $"{minutes:00}:{seconds:00}";
+    }
 }
