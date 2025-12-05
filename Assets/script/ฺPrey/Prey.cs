@@ -5,19 +5,15 @@ using UnityEngine;
 public class Prey : MonoBehaviour
 {
     // *** NEW: ตัวแปรคะแนนรวม (Static Global Score) ***
-    // ตัวแปรนี้จะเก็บคะแนนรวมทั้งหมด และสามารถเข้าถึงได้จากทุกที่ด้วย Prey.totalScore
     public static int totalScore = 0;
 
     // === 1. การเคลื่อนที่ ===
-    [Tooltip("ความเร็วในการเคลื่อนที่ของเหยื่อ")]
     public float moveSpeed = 5f;
-
-    [Tooltip("ทิศทางในการเคลื่อนที่ (เช่น Vector2.left)")]
     public Vector2 direction = Vector2.left;
 
     // === 2. สถานะ ===
     private int health = 1;
-    private bool hasBeenEatenOnce = false;
+    // *** OLD: private bool hasBeenEatenOnce = false; (ลบทิ้ง) ***
     private bool isCollected = false;
 
     // === 3. ข้อมูลปลาสำหรับ UI ===
@@ -50,25 +46,18 @@ public class Prey : MonoBehaviour
             if (health > 0)
             {
                 health--;
-
-                // *** แก้ไข: เพิ่มคะแนนเข้าตัวแปร Static โดยตรง ***
-                totalScore += 1; // เพิ่ม 1 แต้ม
+                totalScore += 1; 
                 Debug.Log($"คะแนนปัจจุบัน: {totalScore}");
 
-                // *** แสดงข้อมูลเมื่อถูกกินครั้งแรก ***
-                if (!hasBeenEatenOnce && uiManager != null)
+                // *** แสดงข้อมูลปลา (UIManager จะจัดการการตรวจสอบซ้ำเอง) ***
+                if (uiManager != null)
                 {
-                    uiManager.DisplayFishInfo(fishSpriteImage, fishName, fishDescription);
-                    hasBeenEatenOnce = true;
+                    uiManager.DisplayFishInfoByName(fishName);
                 }
 
-                // *** ตั้งค่า Flag ว่าถูกเก็บแล้ว ***
                 isCollected = true;
-
-                // หายไปจากฉาก
                 Die();
             }
-            
         }
     }
 
