@@ -946,6 +946,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e264dca10a4f40addb4bc1dbd3b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pad: {fileID: 1870824958}
+  threshold: 300
+  inputDelay: 3
   fishPanels:
   - fishName: Herring
     infoPanelObject: {fileID: 1847772528}
@@ -1882,6 +1885,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   infoPanels:
   - {fileID: 2015832908}
+  pad: {fileID: 1870824958}
+  threshold: 300
 --- !u!4 &575303981
 Transform:
   m_ObjectHideFlags: 0
@@ -3629,8 +3634,11 @@ MonoBehaviour:
   orcaPanel: {fileID: 623594507}
   enableOrca: 1
   orcaTime: 55
+  orcaInputDelay: 3
   timerText: {fileID: 1501688055}
   remainingTime: 120
+  pad: {fileID: 1870824958}
+  threshold: 30
   winPanel: {fileID: 1588305698}
   losePanel: {fileID: 165416537}
 --- !u!4 &1300491966

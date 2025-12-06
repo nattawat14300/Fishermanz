@@ -1,12 +1,22 @@
 using UnityEngine;
-using UnityEngine.UI; // ต้องมีสำหรับ Image
-using TMPro;        // ต้องมีสำหรับ TextMeshPro
+using UnityEngine.UI;
+using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+
 public class UIManager : MonoBehaviour
 {
-   // *** แก้ไข: ย้ายการประกาศ HashSet เข้าไปในคลาส และเป็น Static เพื่อติดตาม Global ***
     private static HashSet<string> displayedFishNames = new HashSet<string>();
+
+    [Header("Sensor For Next")]
+    public ForcePadReader pad;
+    public float threshold = 300f;
+
+    [Header("Delay Before Input")]
+    public float inputDelay = 3f;   // ✅ เวลาหน่วงก่อนกดได้ (วินาที)
+
+    private bool allowInput = false;
+    private bool sensorConsumed = false;
 
     [System.Serializable]
     public struct FishUIPanel
@@ -19,64 +29,51 @@ public class UIManager : MonoBehaviour
     public FishUIPanel[] fishPanels;
 
     private Coroutine hideInfoCoroutine;
-    private GameObject currentActivePanel = null; 
+    private GameObject currentActivePanel = null;
 
     void Start()
     {
-        // ... (โค้ดปิด Panel ทั้งหมด) ...
         foreach (FishUIPanel panelProfile in fishPanels)
         {
             if (panelProfile.infoPanelObject != null)
-            {
                 panelProfile.infoPanelObject.SetActive(false);
-            }
         }
 
-        // ตรวจสอบให้แน่ใจว่าเกมเริ่มด้วยเวลาปกติ
         Time.timeScale = 1f;
     }
 
     public void DisplayFishInfoByName(string targetFishName)
     {
-        // 1. *** การติดตาม: ตรวจสอบว่าเคยแสดงข้อมูลไปแล้วหรือไม่ ***
-        if (displayedFishNames.Contains(targetFishName))
-        {
-            // ถ้าเคยแสดงแล้ว ให้ข้ามการเปิด UI
-            Debug.Log($"Info for {targetFishName} has already been displayed. Skipping UI.");
-            return;
-        }
+        sensorConsumed = false;
+        allowInput = false;
 
-        // 2. ปิด Panel เดิม (ถ้ามี)
+        if (displayedFishNames.Contains(targetFishName))
+            return;
+
         if (currentActivePanel != null)
         {
             currentActivePanel.SetActive(false);
             if (hideInfoCoroutine != null)
-            {
                 StopCoroutine(hideInfoCoroutine);
-            }
         }
 
-        // 3. ค้นหา Panel
         foreach (FishUIPanel panelProfile in fishPanels)
         {
             if (panelProfile.fishName.Equals(targetFishName, System.StringComparison.OrdinalIgnoreCase))
             {
                 if (panelProfile.infoPanelObject != null)
                 {
-                    // 4. เปิด Panel และหยุดเวลาเกม
                     panelProfile.infoPanelObject.SetActive(true);
                     currentActivePanel = panelProfile.infoPanelObject;
 
-                    // *** การพักเกม: ตั้งค่า Time.timeScale เป็น 0 ***
                     Time.timeScale = 0f;
-                    
-                    // 5. เริ่ม Coroutine รอรับ Input
+
+                    StartCoroutine(EnableInputAfterDelay());
+
                     hideInfoCoroutine = StartCoroutine(WaitForKeyPressToHide());
 
-                    // 6. *** บันทึกการแสดงผล: เพิ่มชื่อปลาลงในรายการที่แสดงแล้ว ***
                     displayedFishNames.Add(targetFishName);
-                    
-                    return; 
+                    return;
                 }
             }
         }
@@ -84,43 +81,67 @@ public class UIManager : MonoBehaviour
         Debug.LogWarning($"UI Panel for '{targetFishName}' not found in UIManager database.");
     }
 
-    // Coroutine สำหรับรอรับการกดปุ่มใดๆ เพื่อซ่อน UI
+    // ✅ หน่วงก่อนให้กดได้
+    IEnumerator EnableInputAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(inputDelay);
+        allowInput = true;
+        Debug.Log("Info Panel: Input Enabled");
+    }
+
     IEnumerator WaitForKeyPressToHide()
     {
         while (true)
         {
-            // ใช้ yield return null เพื่อรอจนกว่าจะถึงเฟรมถัดไป (ทำงานได้แม้ Time.timeScale = 0)
             yield return null;
 
-            // ตรวจสอบว่ามีการกดปุ่มใดๆ บนคีย์บอร์ดหรือไม่
-            if (Input.anyKeyDown)
+            if (!allowInput) continue;
+
+            bool anyKey = Input.anyKeyDown;
+            bool anySensor = IsAnySensorPressed();
+
+            if (anySensor && sensorConsumed)
+                continue;
+
+            if (anyKey || anySensor)
             {
                 HideUIAndResumeGame();
-                yield break; 
+                yield break;
             }
+
+            if (!anySensor)
+                sensorConsumed = false;
         }
     }
 
-    /// <summary>
-    /// ฟังก์ชันสำหรับซ่อน UI และตั้งค่าเวลาเกมให้กลับเป็นปกติ
-    /// </summary>
     public void HideUIAndResumeGame()
     {
-        // 1. ซ่อน Panel ที่กำลังเปิดอยู่
         if (currentActivePanel != null)
         {
             currentActivePanel.SetActive(false);
             currentActivePanel = null;
         }
 
-        // 2. *** การกลับมาเดินเกม: ตั้งค่า Time.timeScale เป็น 1 ***
         Time.timeScale = 1f;
 
-        // 3. หยุด Coroutine
         if (hideInfoCoroutine != null)
         {
             StopCoroutine(hideInfoCoroutine);
             hideInfoCoroutine = null;
         }
+
+        allowInput = false;
+        sensorConsumed = false;
+    }
+
+    bool IsAnySensorPressed()
+    {
+        if (pad == null) return false;
+
+        return pad.f1 > threshold ||
+               pad.f2 > threshold ||
+               pad.f3 > threshold ||
+               pad.f4 > threshold ||
+               pad.f5 > threshold;
     }
 }

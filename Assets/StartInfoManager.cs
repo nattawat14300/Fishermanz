@@ -8,6 +8,11 @@ public class StartInfoManager : MonoBehaviour
     private int currentIndex = 0;
     private bool introActive = true;
 
+    [Header("Sensor Input")]
+    public ForcePadReader pad;
+    public float threshold = 300f;
+    private bool sensorConsumed = false;
+
     public void Awake()
     {
         Time.timeScale = 0f;
@@ -23,7 +28,6 @@ public class StartInfoManager : MonoBehaviour
         ShowPanel(0);
         CountdownTimer.IsGameReady = false;
 
-        // หยุดเกม
         Time.timeScale = 0f;
     }
 
@@ -31,19 +35,33 @@ public class StartInfoManager : MonoBehaviour
     {
         if (!introActive) return;
 
-        // ✅ กดปุ่มใดก็ได้ = Next
-        if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+        bool anyKey = Input.anyKeyDown || Input.GetMouseButtonDown(0);
+        bool anySensor = IsAnySensorPressed();
+
+        // กันกดรัว: sensor ต้อง "ยกนิ้ว" ก่อน
+        if (!anySensor)
+            sensorConsumed = false;
+
+        if ((anyKey || anySensor) && !sensorConsumed)
         {
-            // ถ้าอยู่หน้า Panel สุดท้าย → Play
+            sensorConsumed = true;
+
             if (currentIndex >= infoPanels.Length - 1)
-            {
                 PlayGame();
-            }
             else
-            {
                 NextInfo();
-            }
         }
+    }
+
+    bool IsAnySensorPressed()
+    {
+        if (pad == null) return false;
+
+        return pad.f1 > threshold ||
+               pad.f2 > threshold ||
+               pad.f3 > threshold ||
+               pad.f4 > threshold ||
+               pad.f5 > threshold;
     }
 
     public void NextInfo()
@@ -54,7 +72,6 @@ public class StartInfoManager : MonoBehaviour
 
     public void PlayGame()
     {
-        // ปิด Panel ทั้งหมด
         for (int i = 0; i < infoPanels.Length; i++)
             infoPanels[i].SetActive(false);
 

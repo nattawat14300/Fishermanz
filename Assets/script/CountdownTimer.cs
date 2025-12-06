@@ -1,98 +1,114 @@
 ﻿using UnityEngine;
 using TMPro;
-using System.Collections.Generic;
 using System.Collections;
 
 public class CountdownTimer : MonoBehaviour
 {
-    
     [SerializeField] float elapsedTime = 0f;
+
     [Header("Orca Panel")]
     public GameObject orcaPanel;
     public bool enableOrca = true;
     public float orcaTime = 55f;
     private bool orcaShown = false;
 
+    [Header("Orca Input Delay")]
+    public float orcaInputDelay = 3f;   // ✅ หน่วง 3 วินาทีก่อนกด Next
+    private bool allowOrcaInput = false;
+
     [Header("Timer")]
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float remainingTime = 120f;
-
     private float startingTime;
 
     public static bool IsGameReady = false;
 
+    [Header("Sensor Input (Orca Next)")]
+    public ForcePadReader pad;
+    public float threshold = 50f;   // ✅ ปรับตามแรงกด
+    private bool sensorLocked = false;
 
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
 
-    private SpawnerManager spawnerManager;
-    private bool initialSpawnStarted = false;
-
-    // ✅ ตัวแปรควบคุมสถานะ (ที่คุณลบหายไป)
     private bool timerRunning = true;
     private bool playerAlive = true;
     private bool gameEnded = false;
 
-    // 🎵 Music Manager
+    private SpawnerManager spawner;
     private MusicManager music;
 
-    private void Start()
+    void Start()
     {
+        // ===== INITIALIZE =====
         IsGameReady = false;
         Time.timeScale = 0f;
 
         startingTime = remainingTime;
 
-        spawnerManager = FindObjectOfType<SpawnerManager>(); 
-        
-        if (spawnerManager == null) Debug.LogError("SpawnerManager not found!");
         music = FindObjectOfType<MusicManager>();
+        spawner = FindObjectOfType<SpawnerManager>();
 
-        if (timerText == null)
-            Debug.LogError("Timer Text not assigned!");
+        if (spawner == null)
+            Debug.LogError("SpawnerManager not found in scene!");
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
 
-        
-
         UpdateTimerUI();
     }
 
-    private void Update()
+    void Update()
     {
-
         elapsedTime = startingTime - remainingTime;
-        if (gameEnded || !timerRunning || !playerAlive || !IsGameReady) return;
 
-        // ✅ ถ้า Orca Panel แสดงอยู่ → กดปุ่มอะไรก็ได้ = Next
+        // =============================
+        //        ORCA PANEL MODE
+        // =============================
         if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
         {
-            if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+            // ✅ ยังไม่ครบ 3 วิ → ห้ามกด
+            if (!allowOrcaInput)
+                return;
+
+            bool keyPressed = Input.anyKeyDown || Input.GetMouseButtonDown(0);
+            bool sensorPressed = IsAnySensorPressed();
+
+            if (pad != null)
+                Debug.Log($"SENSOR = {pad.f1}, {pad.f2}, {pad.f3}, {pad.f4}, {pad.f5}");
+
+            // ✅ ปล่อย sensor ก่อนเพื่อกันเด้ง
+            if (!sensorPressed)
+                sensorLocked = false;
+
+            // ✅ ครบเวลาแล้ว + ยังไม่ lock → Next
+            if ((keyPressed || sensorPressed) && !sensorLocked)
             {
+                sensorLocked = true;
                 OnOrcaNext();
             }
-            return; // หยุดไม่ให้ Timer เดินต่อ
+
+            return;
         }
 
-        if (gameEnded || !timerRunning || !playerAlive) return;
+        // =============================
+        //        WAIT GAME READY
+        // =============================
+        if (!IsGameReady || gameEnded || !timerRunning || !playerAlive)
+            return;
 
-        float oneMinuteElapsed = remainingTime - 60f; 
-
-        if (!initialSpawnStarted && elapsedTime >= 60f && spawnerManager != null)
-        {
-            spawnerManager.ChangeSpawnRate(3.0f, 5.0f); 
-            initialSpawnStarted = true;
-            Debug.Log("CountdownTimer: Initial Spawning has started after 1 minute elapsed.");
-        }
-        // เงื่อนไข Orca:
+        // =============================
+        //         TRIGGER ORCA
+        // =============================
         if (enableOrca && !orcaShown && elapsedTime >= orcaTime)
         {
-            if (spawnerManager != null) spawnerManager.StopSpawning();
             TriggerOrca();
         }
 
+        // =============================
+        //           TIMER
+        // =============================
         remainingTime -= Time.deltaTime;
 
         if (remainingTime <= 0)
@@ -104,61 +120,39 @@ public class CountdownTimer : MonoBehaviour
         UpdateTimerUI();
     }
 
-
+    // ======================
+    //        ORCA
+    // ======================
     private void TriggerOrca()
     {
         orcaShown = true;
         timerRunning = false;
+        allowOrcaInput = false;   // ✅ ล็อก input ตอน panel เปิด
 
         if (orcaPanel != null)
             orcaPanel.SetActive(true);
 
+        Time.timeScale = 0f;
+
         if (music != null)
             music.FadeOutIntro();
 
-        Time.timeScale = 0f; // หยุดเกม
+        StartCoroutine(EnableOrcaInputAfterDelay());
+
+        Debug.Log("ORCA PANEL SHOWING");
     }
 
-    private void OnTimeUp()
+    IEnumerator EnableOrcaInputAfterDelay()
     {
-        if (gameEnded) return;
-
-        timerRunning = false;
-        gameEnded = true;
-
-        if (music != null)
-            music.StopMusic();
-
-
-        if (playerAlive && winPanel != null)
-        {
-            winPanel.SetActive(true);
-            Time.timeScale = 0f;   // ชนะ -> หยุดเกม
-        }
-    }
-
-    // 🔴 เรียกจาก PlayerHealth
-    public void PlayerDied()
-    {
-        if (gameEnded) return;
-
-        playerAlive = false;
-        timerRunning = false;
-        gameEnded = true;
-
-        if (music != null)
-            music.StopMusic();
-
-
-        if (losePanel != null)
-        {
-            losePanel.SetActive(true);
-            Time.timeScale = 0f;  // แพ้ -> หยุดเกม
-        }
+        yield return new WaitForSecondsRealtime(orcaInputDelay); // ✅ ใช้ realtime เพราะ TimeScale = 0
+        allowOrcaInput = true;
+        Debug.Log("ORCA INPUT ENABLED");
     }
 
     public void OnOrcaNext()
     {
+        Debug.Log("ORCA NEXT");
+
         if (orcaPanel != null)
             orcaPanel.SetActive(false);
 
@@ -167,11 +161,53 @@ public class CountdownTimer : MonoBehaviour
         IsGameReady = true;
 
         if (music != null)
-            music.PlayAfterOrca();   // ✅ เปลี่ยนเพลงหลัง Orca
+            music.PlayAfterOrca();
+
+        // ✅ Restart Spawn
+        if (spawner != null)
+        {
+            spawner.ChangeSpawnRate(1.5f, 3f);
+            Debug.Log("Spawner Restarted");
+        }
+        else
+        {
+            Debug.LogError("SpawnerManager not found!");
+        }
     }
 
+    // ======================
+    //        ENDING
+    // ======================
+    private void OnTimeUp()
+    {
+        if (gameEnded) return;
 
+        gameEnded = true;
+        timerRunning = false;
 
+        if (winPanel != null)
+            winPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+    }
+
+    public void PlayerDied()
+    {
+        if (gameEnded) return;
+
+        gameEnded = true;
+        timerRunning = false;
+        playerAlive = false;
+
+        if (losePanel != null)
+            losePanel.SetActive(true);
+
+        Time.timeScale = 0f;
+    }
+
+    // ======================
+    //        UI
+    // ======================
     private void UpdateTimerUI()
     {
         if (timerText == null) return;
@@ -179,5 +215,19 @@ public class CountdownTimer : MonoBehaviour
         int minutes = Mathf.FloorToInt(remainingTime / 60f);
         int seconds = Mathf.FloorToInt(remainingTime % 60f);
         timerText.text = $"{minutes:00}:{seconds:00}";
+    }
+
+    // ======================
+    //        SENSOR
+    // ======================
+    bool IsAnySensorPressed()
+    {
+        if (pad == null) return false;
+
+        return pad.f1 > threshold ||
+               pad.f2 > threshold ||
+               pad.f3 > threshold ||
+               pad.f4 > threshold ||
+               pad.f5 > threshold;
     }
 }
