@@ -3314,8 +3314,8 @@ MonoBehaviour:
   - {fileID: 710375168}
   - {fileID: 677462185}
   - {fileID: 1074465495}
-  minCooldown: 5
-  maxCooldown: 8
+  minCooldown: 7
+  maxCooldown: 10
 --- !u!4 &1092470739
 Transform:
   m_ObjectHideFlags: 0
@@ -4392,7 +4392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abcd30eb2f246674388a04e6f7fcb5ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepSize: 1.5
+  stepSize: 3
   smoothTime: 0.08
 --- !u!114 &1448744244
 MonoBehaviour:
@@ -4422,7 +4422,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pad: {fileID: 1870824958}
   threshold: 300
-  stepSize: 1.5
+  stepSize: 3
   smoothTime: 0.08
 --- !u!1 &1450137367
 GameObject:
@@ -5356,6 +5356,22 @@ PrefabInstance:
     - target: {fileID: 4184485020667202589, guid: 6ec678468ec67154db3a87f1e56df9c0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5817219480281604153, guid: 6ec678468ec67154db3a87f1e56df9c0, type: 3}
+      propertyPath: m_Size.x
+      value: 0.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 5817219480281604153, guid: 6ec678468ec67154db3a87f1e56df9c0, type: 3}
+      propertyPath: m_Size.y
+      value: 0.63
+      objectReference: {fileID: 0}
+    - target: {fileID: 5817219480281604153, guid: 6ec678468ec67154db3a87f1e56df9c0, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6022310080621384319, guid: 6ec678468ec67154db3a87f1e56df9c0, type: 3}
+      propertyPath: moveSpeed
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

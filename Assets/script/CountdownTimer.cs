@@ -27,7 +27,7 @@ public class CountdownTimer : MonoBehaviour
     public ForcePadReader pad;
     public float threshold = 50f;   // ✅ ปรับตามแรงกด
     private bool sensorLocked = false;
-
+    
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
@@ -163,17 +163,14 @@ public class CountdownTimer : MonoBehaviour
         if (music != null)
             music.PlayAfterOrca();
 
-        // ✅ Restart Spawn
+        // ✅ เริ่ม Spawn ด้วยค่าจาก Inspector
         if (spawner != null)
         {
-            spawner.ChangeSpawnRate(1.5f, 3f);
-            Debug.Log("Spawner Restarted");
-        }
-        else
-        {
-            Debug.LogError("SpawnerManager not found!");
+            spawner.StartSpawning();
+            Debug.Log("Spawner started using INSPECTOR VALUES");
         }
     }
+
 
     // ======================
     //        ENDING
