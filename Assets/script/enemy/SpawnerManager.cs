@@ -15,18 +15,15 @@ public class SpawnerManager : MonoBehaviour
 
     void Start()
     {
-        // ❌ ไม่ให้ spawn ตอนเริ่มเกม
-        StopSpawning();
+        StopSpawning(); // ❌ ไม่ spawn ตอนเริ่ม
     }
 
     // =========================
     //       PUBLIC API
     // =========================
-
-    // ✅ เรียกจาก CountdownTimer ตอนกด NEXT
     public void StartSpawning()
     {
-        if (isSpawning) return;   // กันซ้ำ
+        if (isSpawning) return;
 
         isSpawning = true;
         spawnRoutine = StartCoroutine(SpawnRoutine());
@@ -47,7 +44,6 @@ public class SpawnerManager : MonoBehaviour
         Debug.Log("SpawnerManager: STOP spawning");
     }
 
-    // ✅ ถ้าอยากปรับผ่านโค้ด ก็ได้ (แต่ยังใช้ Inspector default)
     public void ChangeSpawnRate(float newMin, float newMax)
     {
         minCooldown = newMin;
@@ -69,12 +65,8 @@ public class SpawnerManager : MonoBehaviour
     {
         while (true)
         {
-            // ✅ ใช้ค่าที่ตั้งใน Inspector
             float delay = Random.Range(minCooldown, maxCooldown);
-
-            // ✅ ไม่โดน Time.timeScale = 0
-            yield return new WaitForSecondsRealtime(delay);
-
+            yield return new WaitForSecondsRealtime(delay); // ใช้ Realtime
             SpawnFromRandomSpawner();
         }
     }
