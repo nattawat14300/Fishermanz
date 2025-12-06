@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    // ============================
+    // Temporary placeholder for Character/GameObject
+    // ============================
+    public GameObject character;
 
     void Awake()
     {
@@ -19,6 +23,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
 
@@ -50,43 +55,32 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // ============================
+    // Restart Scene ปัจจุบัน
+    // ============================
     public void Restart()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    // ============================
+    // ไป Wait Screen
+    // ============================
     public void WaitScreen()
     {
         SceneManager.LoadScene("WaitScreen");
     }
 
-    // ✅ แก้ Character เป็น GameObject ชั่วคราว
-    public void StartSceneTransition(string sceneName, GameObject characterToStore)
-    {
-        if (characterToStore != null)
-        {
-            StoreCharacterData(characterToStore);
-        }
-        else
-        {
-            Debug.LogWarning("Character is null during scene transition. Skipping data storage.");
-        }
+    // ============================
+    // Character ชั่วคราว
+    // ============================
+    public GameObject GetCharacter() => character;
 
-        // ✅ ใช้ SceneManager แทน SceneLoader
-        SceneManager.LoadScene(sceneName);
-    }
+    public void SetCharacter(GameObject obj) => character = obj;
 
-    // ✅ เพิ่มเมธอดนี้เพื่อไม่ให้ Error
-    void StoreCharacterData(GameObject character)
+    public void Quiz()
     {
-        Debug.Log("Storing character data: " + character.name);
-        // คุณสามารถเพิ่มระบบ Save จริงตรงนี้ภายหลังได้
-    }
-
-    public void GoToQuizScene()
-    {
-        //Time.timeScale = 1f; // กรณีเกมถูกหยุดไว้
         SceneManager.LoadScene("Quiz");
     }
 }

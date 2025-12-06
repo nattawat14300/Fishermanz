@@ -5,9 +5,13 @@ using UnityEngine.UI;
 
 public class QuizControll : MonoBehaviour
 {
+    [Header("Result Panels")]
+    public GameObject correctPanel;
+    public GameObject wrongPanel;
+
     [Header("UI References")]
     public GameObject quizPanel;
-    public Image questionImage;  
+    public Image questionImage;
 
     [System.Serializable]
     public class Question
@@ -20,21 +24,22 @@ public class QuizControll : MonoBehaviour
     public Question[] questions;
 
     [Header("Force Pad")]
-    public ForcePadReader pad;          // ตัวอ่านเซ็นเซอร์
-    public float threshold = 50f;       // ค่าที่ถือว่า "กดแล้ว"
+    public ForcePadReader pad;
+    public float threshold = 50f;
 
     private int currentQuestionIndex = 0;
     private int score = 0;
-    private bool quizActive = false;
+
+    private bool sensorLocked = false;
+    private bool waitForRelease = false;
+    private bool waitingForShowResult = false;
+    private bool waitingForNextQuestion = false;
+    private char lastSelectedAnswer;
 
     private List<char> playerAnswers = new List<char>();
-    private bool sensorLocked = false; // กันเด้ง
 
     void Start()
     {
-        if (quizPanel != null)
-            quizPanel.SetActive(true);
-
         StartQuiz();
     }
 
@@ -43,111 +48,172 @@ public class QuizControll : MonoBehaviour
         currentQuestionIndex = 0;
         score = 0;
         playerAnswers.Clear();
-        quizActive = true;
+        sensorLocked = false;
+        waitForRelease = false;
+        waitingForShowResult = false;
+        waitingForNextQuestion = false;
+
+        if (quizPanel != null)
+            quizPanel.SetActive(true);
+        if (correctPanel != null) correctPanel.SetActive(false);
+        if (wrongPanel != null) wrongPanel.SetActive(false);
 
         ShowQuestion(currentQuestionIndex);
+    }
+
+    void Update()
+    {
+        if (waitingForShowResult)
+        {
+            // รอให้ปล่อย Sensor / มือก่อน
+            if (waitForRelease)
+            {
+                if (AllSensorsReleased())
+                    waitForRelease = false;
+                return;
+            }
+
+            // รอกดเพื่อแสดง panel ถูก/ผิด
+            if (DetectAnyPress())
+            {
+                ShowAnswerResult();
+            }
+        }
+        else if (waitingForNextQuestion)
+        {
+            // รอให้ปล่อย Sensor / มือก่อน
+            if (waitForRelease)
+            {
+                if (AllSensorsReleased())
+                    waitForRelease = false;
+                return;
+            }
+
+            // รอกดเพื่อไปข้อถัดไป
+            if (DetectAnyPress())
+            {
+                ContinueAfterResult();
+            }
+        }
+        else
+        {
+            CheckInput(); // รับคำตอบใหม่
+        }
     }
 
     void ShowQuestion(int index)
     {
         if (index >= questions.Length)
         {
-            ShowResults();
+            // ข้อสุดท้ายจบ Quiz
+            GoToWaitScreen();
             return;
         }
 
         Question q = questions[index];
-
         if (questionImage != null && q.questionSprite != null)
             questionImage.sprite = q.questionSprite;
 
         Debug.Log($"Showing question {index + 1}");
-    }
-
-    void Update()
-    {
-        if (!quizActive) return;
-
-        CheckInput();
+        sensorLocked = false;
+        waitForRelease = false;
     }
 
     void CheckInput()
     {
+        if (sensorLocked) return;
+
         char selected = '\0';
 
-        // -------------------------
-        // 1. รับค่าจากคีย์บอร์ด
-        // -------------------------
+        // Keyboard
         if (Input.GetKeyDown(KeyCode.A)) selected = 'A';
         else if (Input.GetKeyDown(KeyCode.B)) selected = 'B';
         else if (Input.GetKeyDown(KeyCode.C)) selected = 'C';
 
-        // -------------------------
-        // 2. รับค่าจาก ForcePad
-        // -------------------------
+        // Sensor
         if (pad != null)
         {
-            if (pad.f3 > threshold) selected = 'A';
-            else if (pad.f4 > threshold) selected = 'B';
+            if (pad.f4 > threshold) selected = 'A';
+            else if (pad.f3 > threshold) selected = 'B';
             else if (pad.f5 > threshold) selected = 'C';
 
-            // ปล่อยล็อกเมื่อไม่มีแรงกด
             if (pad.f3 <= threshold && pad.f4 <= threshold && pad.f5 <= threshold)
                 sensorLocked = false;
         }
 
-        // -------------------------
-        // Process answer
-        // -------------------------
-        if (selected != '\0' && !sensorLocked)
+        if (selected != '\0')
         {
+            lastSelectedAnswer = selected;
             sensorLocked = true;
-            ProcessAnswer(selected);
+            waitForRelease = true;
+            waitingForShowResult = true;
         }
     }
 
-    void ProcessAnswer(char selectedChar)
+    void ShowAnswerResult()
     {
-        quizActive = false;
-        playerAnswers.Add(selectedChar);
+        waitingForShowResult = false;
+        waitingForNextQuestion = true;
+        sensorLocked = true;
+        waitForRelease = true;
 
-        if (selectedChar == questions[currentQuestionIndex].correctAnswer)
+        playerAnswers.Add(lastSelectedAnswer);
+
+        bool isCorrect = lastSelectedAnswer == questions[currentQuestionIndex].correctAnswer;
+        if (isCorrect)
         {
             score++;
-            Debug.Log($"Q{currentQuestionIndex + 1}: Correct!");
+            if (correctPanel != null) correctPanel.SetActive(true);
         }
         else
         {
-            Debug.Log($"Q{currentQuestionIndex + 1}: Incorrect. Correct answer: {questions[currentQuestionIndex].correctAnswer}");
+            if (wrongPanel != null) wrongPanel.SetActive(true);
         }
 
-        currentQuestionIndex++;
-        Invoke(nameof(ContinueQuiz), 0.3f);
+        Debug.Log($"Answer: {lastSelectedAnswer} | Correct: {questions[currentQuestionIndex].correctAnswer}");
     }
 
-    void ContinueQuiz()
+    void ContinueAfterResult()
     {
+        waitingForNextQuestion = false;
+        sensorLocked = false;
+        waitForRelease = true;
+
+        if (correctPanel != null) correctPanel.SetActive(false);
+        if (wrongPanel != null) wrongPanel.SetActive(false);
+
+        currentQuestionIndex++;
+
         if (currentQuestionIndex >= questions.Length)
         {
-            ShowResults();
+            GoToWaitScreen();
             return;
         }
 
-        quizActive = true;
         ShowQuestion(currentQuestionIndex);
     }
 
-    void ShowResults()
+    bool DetectAnyPress()
     {
-        Debug.Log($"Final Score: {score}/{questions.Length}");
+        if (Input.anyKeyDown) return true;
 
-        for (int i = 0; i < playerAnswers.Count; i++)
+        if (pad != null)
         {
-            char playerAnswer = playerAnswers[i];
-            char correctAnswer = questions[i].correctAnswer;
-            Debug.Log($"Q{i + 1}: Player chose {playerAnswer}, Correct answer {correctAnswer}");
+            if (pad.f3 > threshold || pad.f4 > threshold || pad.f5 > threshold) return true;
         }
 
-        quizActive = false;
+        return false;
+    }
+
+    bool AllSensorsReleased()
+    {
+        if (pad == null) return true;
+        return pad.f3 <= threshold && pad.f4 <= threshold && pad.f5 <= threshold;
+    }
+
+    void GoToWaitScreen()
+    {
+        Debug.Log($"Final Score: {score}/{questions.Length}");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("WaitScreen");
     }
 }
