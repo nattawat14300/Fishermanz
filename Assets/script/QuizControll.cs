@@ -7,7 +7,7 @@ public class QuizControll : MonoBehaviour
 {
     [Header("UI References")]
     public GameObject quizPanel;
-    public Image questionImage;  
+    public Image questionImage;  // Image แสดงรูปคำถาม
 
     [System.Serializable]
     public class Question
@@ -67,12 +67,13 @@ public class QuizControll : MonoBehaviour
     void Update()
     {
         if (!quizActive) return;
-
         CheckInput();
     }
 
     void CheckInput()
     {
+        if (!quizActive) return;
+
         char selected = '\0';
 
         // -------------------------
@@ -111,6 +112,7 @@ public class QuizControll : MonoBehaviour
         quizActive = false;
         playerAnswers.Add(selectedChar);
 
+        // ตรวจสอบคำตอบถูก
         if (selectedChar == questions[currentQuestionIndex].correctAnswer)
         {
             score++;
@@ -141,6 +143,7 @@ public class QuizControll : MonoBehaviour
     {
         Debug.Log($"Final Score: {score}/{questions.Length}");
 
+        // แสดงคำตอบผู้เล่นและคำตอบที่ถูกต้อง
         for (int i = 0; i < playerAnswers.Count; i++)
         {
             char playerAnswer = playerAnswers[i];

@@ -1,72 +1,79 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 using System.Collections;
-using System.Linq;
 
 public class CountdownTimer : MonoBehaviour
 {
-
-    [SerializeField] float elapsedTime = 0f;
-
+    // =========================
+    //           ORCA
+    // =========================
     [Header("Orca Panel")]
     public GameObject orcaPanel;
     public bool enableOrca = true;
     public float orcaTime = 60f;
+    public float orcaInputDelay = 3f;
     private bool orcaShown = false;
-
-    [Header("Orca Input Delay")]
-    public float orcaInputDelay = 3f;   // ✅ หน่วง 3 วินาทีก่อนกด Next
     private bool allowOrcaInput = false;
 
+    // =========================
+    //           TIMER
+    // =========================
     [Header("Timer")]
-    [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private float remainingTime = 120f;
+    public TextMeshProUGUI timerText;
+    public float remainingTime = 120f;
     private float startingTime;
+    private float elapsedTime;
 
     public static bool IsGameReady = false;
 
-    [Header("Sensor Input (Orca Next)")]
+    // =========================
+    //          SENSOR
+    // =========================
+    [Header("Sensor Input")]
     public ForcePadReader pad;
-    public float threshold = 50f;   // ✅ ปรับตามแรงกด
+    public float threshold = 50f;
     private bool sensorLocked = false;
 
+    // =========================
+    //          PANELS
+    // =========================
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
 
+    // =========================
+    //          STATE
+    // =========================
     private bool timerRunning = true;
     private bool playerAlive = true;
     private bool gameEnded = false;
 
+    // =========================
+    //         MANAGERS
+    // =========================
     private SpawnerManager spawner;
-    private SpawnerManager spawnerManager;
+    private MusicManager music;
 
     [Header("Scene Transition")]
-    [Tooltip("ชื่อ Scene ที่มี Quiz UI อยู่")]
     public string quizSceneName = "Quiz";
-    // 🎵 Music Manager
-
-    private MusicManager music;
 
     void Start()
     {
         // ===== INITIALIZE =====
-        IsGameReady = false;
         Time.timeScale = 0f;
+        IsGameReady = false;
 
         startingTime = remainingTime;
-        spawnerManager = FindObjectOfType<SpawnerManager>();
 
-        if (spawnerManager == null) Debug.LogError("SpawnerManager not found!");
+        spawner = FindObjectOfType<SpawnerManager>();
+        if (spawner == null) Debug.LogError("SpawnerManager not found!");
 
         music = FindObjectOfType<MusicManager>();
-        spawner = FindObjectOfType<SpawnerManager>();
-
-        if (spawner == null)
-            Debug.LogError("SpawnerManager not found in scene!");
+        if (music == null) Debug.LogWarning("MusicManager not found!");
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
+        if (orcaPanel != null) orcaPanel.SetActive(false);
 
         UpdateTimerUI();
     }
@@ -75,7 +82,6 @@ public class CountdownTimer : MonoBehaviour
     {
         elapsedTime = startingTime - remainingTime;
 
-
         if (gameEnded || !timerRunning || !playerAlive || !IsGameReady) return;
 
         // =============================
@@ -83,21 +89,14 @@ public class CountdownTimer : MonoBehaviour
         // =============================
         if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
         {
-            // ✅ ยังไม่ครบ 3 วิ → ห้ามกด
-            if (!allowOrcaInput)
-                return;
+            if (!allowOrcaInput) return;
 
             bool keyPressed = Input.anyKeyDown || Input.GetMouseButtonDown(0);
             bool sensorPressed = IsAnySensorPressed();
 
-            if (pad != null)
-                Debug.Log($"SENSOR = {pad.f1}, {pad.f2}, {pad.f3}, {pad.f4}, {pad.f5}");
-
-            // ✅ ปล่อย sensor ก่อนเพื่อกันเด้ง
             if (!sensorPressed)
                 sensorLocked = false;
 
-            // ✅ ครบเวลาแล้ว + ยังไม่ lock → Next
             if ((keyPressed || sensorPressed) && !sensorLocked)
             {
                 sensorLocked = true;
@@ -108,46 +107,37 @@ public class CountdownTimer : MonoBehaviour
         }
 
         // =============================
-        //        WAIT GAME READY
+        //       TRIGGER ORCA
         // =============================
-        if (!IsGameReady || gameEnded || !timerRunning || !playerAlive)
-            return;
-
-
-        // =============================
-        //         TRIGGER ORCA
-        // =============================
-
-        elapsedTime = startingTime - remainingTime;
-
-        // เงื่อนไข Orca:
         if (enableOrca && !orcaShown && elapsedTime >= orcaTime)
         {
             TriggerOrca();
+            return;
         }
 
         // =============================
-        //           TIMER
+        //        TIMER COUNTDOWN
         // =============================
         remainingTime -= Time.deltaTime;
 
-        if (remainingTime <= 0)
+        if (remainingTime <= 0f)
         {
-            remainingTime = 0;
+            remainingTime = 0f;
             OnTimeUp();
         }
 
         UpdateTimerUI();
     }
 
-    // ======================
-    //        ORCA
-    // ======================
+    // =============================
+    //            ORCA
+    // =============================
     private void TriggerOrca()
     {
         orcaShown = true;
         timerRunning = false;
-        allowOrcaInput = false;   // ✅ ล็อก input ตอน panel เปิด
+        allowOrcaInput = false;
+        sensorLocked = true;
 
         if (orcaPanel != null)
             orcaPanel.SetActive(true);
@@ -158,55 +148,19 @@ public class CountdownTimer : MonoBehaviour
             music.FadeOutIntro();
 
         StartCoroutine(EnableOrcaInputAfterDelay());
-
         Debug.Log("ORCA PANEL SHOWING");
     }
 
-    IEnumerator EnableOrcaInputAfterDelay()
+    private IEnumerator EnableOrcaInputAfterDelay()
     {
         yield return new WaitForSecondsRealtime(orcaInputDelay);
         allowOrcaInput = true;
+        sensorLocked = false;
         Debug.Log("ORCA INPUT ENABLED");
-
-        // ❌ ไม่ควรตั้ง gameEnded = true หรือ winPanel ทันที
-        // เอาไว้เฉพาะให้ผู้เล่นกด Next
-    }
-
-    private IEnumerator LoadQuizSceneAfterDelay(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        GameManager gm = GameManager.Instance;
-        if (gm != null)
-        {
-            GameObject currentCharacter = GameObject.FindWithTag("Player");
-            gm.StartSceneTransition(quizSceneName, currentCharacter);
-        }
-    }
-
-    // 🔴 เรียกจาก PlayerHealth
-    public void PlayerDied()
-    {
-        if (gameEnded) return;
-
-        playerAlive = false;
-        timerRunning = false;
-        gameEnded = true;
-
-        if (music != null)
-            music.StopMusic();
-
-
-        if (losePanel != null)
-        {
-            losePanel.SetActive(true);
-            Time.timeScale = 0f;  // แพ้ -> หยุดเกม
-        }
     }
 
     public void OnOrcaNext()
     {
-        Debug.Log("ORCA NEXT");
-
         if (orcaPanel != null)
             orcaPanel.SetActive(false);
 
@@ -218,15 +172,17 @@ public class CountdownTimer : MonoBehaviour
             music.PlayAfterOrca();
 
         if (spawner != null)
+        {
             spawner.StartSpawning();
+            Debug.Log("Spawner started");
+        }
 
-        // ❌ เอา gameEnded หรือ winPanel ออกจากตรงนี้
+        Debug.Log("ORCA NEXT → GAME STARTED");
     }
 
-
-    // ======================
-    //        ENDING
-    // ======================
+    // =============================
+    //            ENDING
+    // =============================
     private void OnTimeUp()
     {
         if (gameEnded) return;
@@ -238,24 +194,40 @@ public class CountdownTimer : MonoBehaviour
             winPanel.SetActive(true);
 
         Time.timeScale = 0f;
+        Debug.Log("TIME UP → PLAYER WON");
     }
 
-    // ======================
-    //        UI
-    // ======================
+    public void PlayerDied()
+    {
+        if (gameEnded) return;
+
+        gameEnded = true;
+        timerRunning = false;
+        playerAlive = false;
+
+        if (losePanel != null)
+            losePanel.SetActive(true);
+
+        Time.timeScale = 0f;
+        Debug.Log("PLAYER DIED → GAME OVER");
+    }
+
+    // =============================
+    //            UI
+    // =============================
     private void UpdateTimerUI()
     {
         if (timerText == null) return;
 
-        int minutes = Mathf.FloorToInt(remainingTime / 60f);
-        int seconds = Mathf.FloorToInt(remainingTime % 60f);
-        timerText.text = $"{minutes:00}:{seconds:00}";
+        int m = Mathf.FloorToInt(remainingTime / 60f);
+        int s = Mathf.FloorToInt(remainingTime % 60f);
+        timerText.text = $"{m:00}:{s:00}";
     }
 
-    // ======================
-    //        SENSOR
-    // ======================
-    bool IsAnySensorPressed()
+    // =============================
+    //         SENSOR CHECK
+    // =============================
+    private bool IsAnySensorPressed()
     {
         if (pad == null) return false;
 
