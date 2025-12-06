@@ -31,9 +31,11 @@ public class CountdownTimer : MonoBehaviour
     public float threshold = 50f;
     private bool sensorLocked = false;
 
+
     // =========================
     //        PANELS
     // =========================
+
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
@@ -167,6 +169,7 @@ public class CountdownTimer : MonoBehaviour
         if (music != null)
             music.PlayAfterOrca();
 
+
         if (spawner != null)
             spawner.StartSpawning();
 
@@ -178,6 +181,24 @@ public class CountdownTimer : MonoBehaviour
     // =========================
 
     void OnTimeUp()
+    { 
+        // ✅ Restart Spawn
+        if (spawner != null)
+        {
+            spawner.ChangeSpawnRate(1.5f, 3f);
+            Debug.Log("Spawner Restarted");
+        }
+        else
+        {
+            Debug.LogError("SpawnerManager not found!");
+        }
+    }
+
+    // ======================
+    //        ENDING
+    // ======================
+    private void OnTimeUp()
+
     {
         if (gameEnded) return;
 
