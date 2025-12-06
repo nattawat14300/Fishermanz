@@ -34,9 +34,12 @@ public class CountdownTimer : MonoBehaviour
     public float threshold = 50f;
     private bool sensorLocked = false;
 
+<<<<<<< HEAD
     // =========================
     //         PANELS
     // =========================
+=======
+>>>>>>> parent of 0c3d1d9 (1111)
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
@@ -171,16 +174,42 @@ public class CountdownTimer : MonoBehaviour
         if (music != null)
             music.PlayAfterOrca();
 
+<<<<<<< HEAD
         if (spawner != null)
-            spawner.StartSpawning();
+        {
+            spawner.StartSpawning();                 // ✅ เริ่ม Spawn
+            spawner.ChangeSpawnRate(1.5f, 3f);      // ✅ ปรับความเร็ว spawn
+            Debug.Log("Spawner started & updated");
+=======
+        // ✅ Restart Spawn
+        if (spawner != null)
+        {
+            spawner.ChangeSpawnRate(1.5f, 3f);
+            Debug.Log("Spawner Restarted");
+        }
+        else
+        {
+            Debug.LogError("SpawnerManager not found!");
+>>>>>>> parent of 0c3d1d9 (1111)
+        }
+        else
+        {
+            Debug.LogError("SpawnerManager not found!");
+        }
 
         Debug.Log("ORCA NEXT → GAME STARTED");
     }
 
+<<<<<<< HEAD
     // =========================
     //          ENDING
     // =========================
-    void OnTimeUp()
+=======
+    // ======================
+    //        ENDING
+    // ======================
+>>>>>>> parent of 0c3d1d9 (1111)
+    private void OnTimeUp()
     {
         if (gameEnded) return;
 

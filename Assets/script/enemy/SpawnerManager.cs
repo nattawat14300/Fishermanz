@@ -1,52 +1,53 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnerManager : MonoBehaviour
 {
-    // =========================
-    //         SPAWNERS
-    // =========================
     [Header("Spawners")]
-    public EnemySpawner[] spawners;
+<<<<<<< HEAD
+    public EnemySpawner[] spawners;   // Assign Spawner ทั้งหมดใน Inspector
+=======
+    public EnemySpawner[] spawners; // Assign Spawner ทั้งหมดใน Inspector
+>>>>>>> parent of 0c3d1d9 (1111)
 
-    // =========================
-    //       SPAWN TIMING
-    // =========================
-    [Header("Spawn Timing (Inspector)")]
+    [Header("Spawn Timing")]
     public float minCooldown = 1f;
     public float maxCooldown = 3f;
 
-    // =========================
-    //         STATE
-    // =========================
+    private float spawnTimer; // ไม่ได้ใช้แล้วแต่ปล่อยไว้ได้
     private Coroutine spawnRoutine;
-    private bool isSpawning = false;
 
-    // =========================
-    //          START
-    // =========================
     void Start()
     {
-        StopSpawning();   // ❌ ไม่ spawn ตอนเริ่มเกม
+<<<<<<< HEAD
+        // ❌ ไม่ spawn ตอนเริ่มเกม
+        StopSpawning();
+
+        if (spawners == null || spawners.Length == 0)
+            Debug.LogWarning("No spawners assigned in SpawnerManager!");
     }
 
     // =========================
     //       PUBLIC API
     // =========================
+
+    // ✅ เรียกจาก CountdownTimer ตอนกด NEXT
     public void StartSpawning()
     {
-        if (isSpawning) return;
-
-        if (spawners == null || spawners.Length == 0)
-        {
-            Debug.LogWarning("SpawnerManager: No spawners assigned!");
-            return;
-        }
+        if (isSpawning) return;   // กัน start ซ้ำ
 
         isSpawning = true;
         spawnRoutine = StartCoroutine(SpawnRoutine());
 
-        Debug.Log("SpawnerManager: START spawning");
+        Debug.Log("SpawnerManager: START spawning (Inspector values)");
+=======
+        if (spawners.Length == 0)
+        {
+            Debug.LogWarning("No spawners assigned in SpawnerManager!");
+            return;
+        }
+>>>>>>> parent of 0c3d1d9 (1111)
     }
 
     public void StopSpawning()
@@ -55,17 +56,24 @@ public class SpawnerManager : MonoBehaviour
         {
             StopCoroutine(spawnRoutine);
             spawnRoutine = null;
+            Debug.Log("SpawnerManager: Spawning routine stopped.");
+        }
+    }
+    public void ChangeSpawnRate(float newMinCooldown, float newMaxCooldown)
+    {
+        // 1. หยุด Coroutine เก่าก่อน (ถ้ามี)
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
         }
 
-        isSpawning = false;
+        // 2. เริ่ม Coroutine ใหม่ด้วยช่วงเวลาใหม่
+        spawnRoutine = StartCoroutine(SpawnRoutine(newMinCooldown, newMaxCooldown));
+        Debug.Log($"SpawnerManager: Spawn rate changed to {newMinCooldown}s - {newMaxCooldown}s.");
     }
 
-    public void RestartSpawning()
-    {
-        StopSpawning();
-        StartSpawning();
-    }
-
+<<<<<<< HEAD
+    // ✅ เปลี่ยนค่า spawn จากโค้ด (ยังใช้ Inspector เป็นค่าเริ่ม)
     public void ChangeSpawnRate(float newMin, float newMax)
     {
         minCooldown = newMin;
@@ -74,25 +82,32 @@ public class SpawnerManager : MonoBehaviour
         RestartSpawning();
     }
 
+    public void RestartSpawning()
+    {
+        StopSpawning();
+        StartSpawning();
+    }
+
     // =========================
-    //        SPAWN LOOP
+    //       SPAWN LOOP
     // =========================
     IEnumerator SpawnRoutine()
+=======
+    /// <summary>
+    /// Coroutine ที่ทำงานซ้ำๆ เพื่อ Spawn Enemy
+    /// </summary>
+    IEnumerator SpawnRoutine(float minCooldown, float maxCooldown)
+>>>>>>> parent of 0c3d1d9 (1111)
     {
         while (true)
         {
             float delay = Random.Range(minCooldown, maxCooldown);
-
-            // ✅ ไม่โดน Time.timeScale = 0
-            yield return new WaitForSecondsRealtime(delay);
+            yield return new WaitForSeconds(delay);
 
             SpawnFromRandomSpawner();
         }
     }
 
-    // =========================
-    //        SPAWN
-    // =========================
     void SpawnFromRandomSpawner()
     {
         if (spawners.Length == 0) return;
@@ -100,17 +115,40 @@ public class SpawnerManager : MonoBehaviour
         int index = Random.Range(0, spawners.Length);
         EnemySpawner spawner = spawners[index];
 
-        if (spawner == null) return;
+<<<<<<< HEAD
+        // กัน null
+=======
+        // ✅ NEW: ตรวจสอบว่า Spawner ที่สุ่มมาถูกทำลายไปแล้วหรือไม่
+>>>>>>> parent of 0c3d1d9 (1111)
+        if (spawner == null)
+        {
+            // ถ้า Spawner ถูกทำลายแล้ว ให้ข้ามการ Spawn ในรอบนี้ไป
+            return;
+        }
 
+<<<<<<< HEAD
         GameObject enemy = spawner.Spawn();
 
+        // ปรับค่าเพิ่มเติมกับ Enemy ถ้าต้องการ
         if (enemy != null)
         {
             EnemyMovement em = enemy.GetComponent<EnemyMovement>();
             if (em != null)
             {
-                em.moveSpeed = em.moveSpeed;   // ใช้ค่าที่ตั้งจาก Prefab
+                // ตอนนี้ยังไม่เปลี่ยนค่าใด ๆ (ไว้ต่อยอดได้)
+=======
+        GameObject enemy = spawner.Spawn(); // เรียกใช้งานได้โดยปลอดภัย
+
+        if (enemy != null)
+        {
+            // ... โค้ดที่เหลือยังคงเดิม
+            EnemyMovement em = enemy.GetComponent<EnemyMovement>();
+            if (em != null)
+            {
+>>>>>>> parent of 0c3d1d9 (1111)
+                em.moveSpeed = em.moveSpeed;
             }
         }
     }
 }
+
