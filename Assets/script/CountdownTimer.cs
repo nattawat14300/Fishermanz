@@ -173,7 +173,15 @@ public class CountdownTimer : MonoBehaviour
             music.PlayAfterOrca();
 
         if (spawner != null)
-            spawner.StartSpawning();
+        {
+            spawner.StartSpawning();                 // ✅ เริ่ม Spawn
+            spawner.ChangeSpawnRate(1.5f, 3f);      // ✅ ปรับความเร็ว spawn
+            Debug.Log("Spawner started & updated");
+        }
+        else
+        {
+            Debug.LogError("SpawnerManager not found!");
+        }
 
         Debug.Log("ORCA NEXT → GAME STARTED");
     }
@@ -181,7 +189,7 @@ public class CountdownTimer : MonoBehaviour
     // =========================
     //          ENDING
     // =========================
-    void OnTimeUp()
+    private void OnTimeUp()
     {
         if (gameEnded) return;
 
