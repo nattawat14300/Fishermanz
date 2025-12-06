@@ -4,6 +4,9 @@ using System.Collections;
 
 public class CountdownTimer : MonoBehaviour
 {
+    // =========================
+    //        TIMER
+    // =========================
     [Header("Timer")]
     public TextMeshProUGUI timerText;
     public float remainingTime = 120f;
@@ -13,7 +16,7 @@ public class CountdownTimer : MonoBehaviour
     public static bool IsGameReady = false;
 
     // =========================
-    //        ORCA
+    //          ORCA
     // =========================
     [Header("Orca Panel")]
     public GameObject orcaPanel;
@@ -24,31 +27,29 @@ public class CountdownTimer : MonoBehaviour
     private bool allowOrcaInput = false;
 
     // =========================
-    //       SENSOR
+    //         SENSOR
     // =========================
     [Header("Sensor Input")]
     public ForcePadReader pad;
     public float threshold = 50f;
     private bool sensorLocked = false;
 
-
     // =========================
-    //        PANELS
+    //         PANELS
     // =========================
-
     [Header("Panels")]
     public GameObject winPanel;
     public GameObject losePanel;
 
     // =========================
-    //        STATE
+    //         STATE
     // =========================
     private bool timerRunning = true;
     private bool playerAlive = true;
     private bool gameEnded = false;
 
     // =========================
-    //       MANAGERS
+    //        MANAGERS
     // =========================
     private SpawnerManager spawner;
     private MusicManager music;
@@ -70,6 +71,7 @@ public class CountdownTimer : MonoBehaviour
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
+        if (orcaPanel != null) orcaPanel.SetActive(false);
 
         UpdateTimerUI();
     }
@@ -79,7 +81,7 @@ public class CountdownTimer : MonoBehaviour
         elapsedTime = startingTime - remainingTime;
 
         // =========================
-        //      ORCA MODE
+        //        ORCA MODE
         // =========================
         if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
         {
@@ -101,7 +103,7 @@ public class CountdownTimer : MonoBehaviour
         }
 
         // =========================
-        //       STOP GAME
+        //        STOP GAME
         // =========================
         if (!IsGameReady || gameEnded || !timerRunning || !playerAlive)
             return;
@@ -130,7 +132,7 @@ public class CountdownTimer : MonoBehaviour
     }
 
     // =========================
-    //          ORCA
+    //           ORCA
     // =========================
     void TriggerOrca()
     {
@@ -169,7 +171,6 @@ public class CountdownTimer : MonoBehaviour
         if (music != null)
             music.PlayAfterOrca();
 
-
         if (spawner != null)
             spawner.StartSpawning();
 
@@ -179,26 +180,7 @@ public class CountdownTimer : MonoBehaviour
     // =========================
     //          ENDING
     // =========================
-
     void OnTimeUp()
-    { 
-        // ✅ Restart Spawn
-        if (spawner != null)
-        {
-            spawner.ChangeSpawnRate(1.5f, 3f);
-            Debug.Log("Spawner Restarted");
-        }
-        else
-        {
-            Debug.LogError("SpawnerManager not found!");
-        }
-    }
-
-    // ======================
-    //        ENDING
-    // ======================
-    private void OnTimeUp()
-
     {
         if (gameEnded) return;
 
@@ -226,7 +208,7 @@ public class CountdownTimer : MonoBehaviour
     }
 
     // =========================
-    //          UI
+    //            UI
     // =========================
     void UpdateTimerUI()
     {
@@ -238,7 +220,7 @@ public class CountdownTimer : MonoBehaviour
     }
 
     // =========================
-    //       SENSOR CHECK
+    //        SENSOR CHECK
     // =========================
     bool IsAnySensorPressed()
     {
