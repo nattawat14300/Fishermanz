@@ -71,10 +71,14 @@ public class SpawnerManager : MonoBehaviour
         {
             // ✅ ใช้ค่าที่ตั้งใน Inspector
             float delay = Random.Range(minCooldown, maxCooldown);
+<<<<<<< Updated upstream
 
             // ✅ ไม่โดน Time.timeScale = 0
             yield return new WaitForSecondsRealtime(delay);
 
+=======
+            yield return new WaitForSecondsRealtime(delay); // ✅ ใช้ Realtime
+>>>>>>> Stashed changes
             SpawnFromRandomSpawner();
         }
     }
@@ -93,5 +97,18 @@ public class SpawnerManager : MonoBehaviour
         }
 
         spawner.Spawn();
+    }
+    public void StartSpawning()
+    {
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
+            spawnRoutine = null;
+        }
+
+        // เริ่ม Coroutine ใหม่ด้วยค่า cooldown ปัจจุบัน
+        spawnRoutine = StartCoroutine(SpawnRoutine(minCooldown, maxCooldown));
+
+        Debug.Log("SpawnerManager: Spawning started.");
     }
 }

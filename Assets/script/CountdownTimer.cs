@@ -1,15 +1,20 @@
 ﻿using UnityEngine;
 using TMPro;
 using System.Collections;
+using System.Linq;
 
 public class CountdownTimer : MonoBehaviour
 {
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     [SerializeField] float elapsedTime = 0f;
 
     [Header("Orca Panel")]
     public GameObject orcaPanel;
     public bool enableOrca = true;
-    public float orcaTime = 55f;
+    public float orcaTime = 60f;
     private bool orcaShown = false;
 
     [Header("Orca Input Delay")]
@@ -36,7 +41,14 @@ public class CountdownTimer : MonoBehaviour
     private bool playerAlive = true;
     private bool gameEnded = false;
 
+<<<<<<< Updated upstream
     private SpawnerManager spawner;
+=======
+    [Header("Scene Transition")]
+    [Tooltip("ชื่อ Scene ที่มี Quiz UI อยู่")]
+    public string quizSceneName = "Quiz";
+    // 🎵 Music Manager
+>>>>>>> Stashed changes
     private MusicManager music;
 
     void Start()
@@ -47,6 +59,12 @@ public class CountdownTimer : MonoBehaviour
 
         startingTime = remainingTime;
 
+<<<<<<< Updated upstream
+=======
+        spawnerManager = FindObjectOfType<SpawnerManager>();
+
+        if (spawnerManager == null) Debug.LogError("SpawnerManager not found!");
+>>>>>>> Stashed changes
         music = FindObjectOfType<MusicManager>();
         spawner = FindObjectOfType<SpawnerManager>();
 
@@ -56,12 +74,22 @@ public class CountdownTimer : MonoBehaviour
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
         UpdateTimerUI();
     }
 
     void Update()
     {
         elapsedTime = startingTime - remainingTime;
+<<<<<<< Updated upstream
+=======
+
+        if (gameEnded || !timerRunning || !playerAlive || !IsGameReady) return;
+>>>>>>> Stashed changes
 
         // =============================
         //        ORCA PANEL MODE
@@ -98,9 +126,15 @@ public class CountdownTimer : MonoBehaviour
         if (!IsGameReady || gameEnded || !timerRunning || !playerAlive)
             return;
 
+<<<<<<< Updated upstream
         // =============================
         //         TRIGGER ORCA
         // =============================
+=======
+        elapsedTime = startingTime - remainingTime;
+
+        // เงื่อนไข Orca:
+>>>>>>> Stashed changes
         if (enableOrca && !orcaShown && elapsedTime >= orcaTime)
         {
             TriggerOrca();
@@ -144,9 +178,59 @@ public class CountdownTimer : MonoBehaviour
 
     IEnumerator EnableOrcaInputAfterDelay()
     {
+<<<<<<< Updated upstream
         yield return new WaitForSecondsRealtime(orcaInputDelay); // ✅ ใช้ realtime เพราะ TimeScale = 0
         allowOrcaInput = true;
         Debug.Log("ORCA INPUT ENABLED");
+=======
+        if (gameEnded) return;
+
+        timerRunning = false;
+        gameEnded = true;
+
+        if (music != null)
+            music.StopMusic();
+
+        if (playerAlive && winPanel != null)
+        {
+            winPanel.SetActive(true);
+            Time.timeScale = 0f;
+
+            // รอ 2 วิแล้วค่อยเปลี่ยน Scene
+            StartCoroutine(LoadQuizSceneAfterDelay(2f));
+        }
+    }
+
+    private IEnumerator LoadQuizSceneAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        GameManager gm = GameManager.Instance;
+        if (gm != null)
+        {
+            GameObject currentCharacter = GameObject.FindWithTag("Player");
+            gm.StartSceneTransition(quizSceneName, currentCharacter);
+        }
+    }
+
+    // 🔴 เรียกจาก PlayerHealth
+    public void PlayerDied()
+    {
+        if (gameEnded) return;
+
+        playerAlive = false;
+        timerRunning = false;
+        gameEnded = true;
+
+        if (music != null)
+            music.StopMusic();
+
+
+        if (losePanel != null)
+        {
+            losePanel.SetActive(true);
+            Time.timeScale = 0f;  // แพ้ -> หยุดเกม
+        }
+>>>>>>> Stashed changes
     }
 
     public void OnOrcaNext()
@@ -161,6 +245,7 @@ public class CountdownTimer : MonoBehaviour
         IsGameReady = true;
 
         if (music != null)
+<<<<<<< Updated upstream
             music.PlayAfterOrca();
 
         // ✅ เริ่ม Spawn ด้วยค่าจาก Inspector
@@ -169,6 +254,12 @@ public class CountdownTimer : MonoBehaviour
             spawner.StartSpawning();
             Debug.Log("Spawner started using INSPECTOR VALUES");
         }
+=======
+            music.PlayAfterOrca();   // เปลี่ยนเพลง
+
+        if (spawnerManager != null)
+            spawnerManager.StartSpawning(); // ✅ เริ่ม spawn หลังเกมเดิน
+>>>>>>> Stashed changes
     }
 
 
