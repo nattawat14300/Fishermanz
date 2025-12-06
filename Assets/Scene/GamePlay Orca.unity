@@ -3220,19 +3220,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1076654537}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1300491965}
-        m_TargetAssemblyTypeName: CountdownTimer, Assembly-CSharp
-        m_MethodName: OnOrcaNext
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1076654537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3897,18 +3885,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20dfa15bdf4e30f49b3cc7101d8df25d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elapsedTime: 0
+  timerText: {fileID: 1501688055}
+  remainingTime: 120
   orcaPanel: {fileID: 623594507}
   enableOrca: 1
   orcaTime: 55
   orcaInputDelay: 3
-  timerText: {fileID: 1501688055}
-  remainingTime: 120
   pad: {fileID: 1870824958}
   threshold: 30
   winPanel: {fileID: 1588305698}
   losePanel: {fileID: 165416537}
-  quizSceneName: Quiz
 --- !u!4 &1300491966
 Transform:
   m_ObjectHideFlags: 0
