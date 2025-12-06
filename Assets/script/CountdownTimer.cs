@@ -233,5 +233,22 @@ public class CountdownTimer : MonoBehaviour
                pad.f4 > threshold ||
                pad.f5 > threshold;
     }
+
+    public void ResetTimer()
+    {
+        gameEnded = false;
+        playerAlive = true;
+        timerRunning = false;
+        remainingTime = startingTime;
+        orcaShown = false;
+        allowOrcaInput = false;
+
+        if (winPanel != null) winPanel.SetActive(false);
+        if (losePanel != null) losePanel.SetActive(false);
+        if (orcaPanel != null) orcaPanel.SetActive(false);
+
+        IsGameReady = false;
+    }
+
 }
 

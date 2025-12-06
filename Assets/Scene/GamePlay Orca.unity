@@ -3233,7 +3233,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1364453851}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GoToQuizScene
+        m_MethodName: Quiz
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4221,6 +4221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 1448744231}
+  gameOverUI: {fileID: 165416537}
 --- !u!4 &1364453852
 Transform:
   m_ObjectHideFlags: 0
