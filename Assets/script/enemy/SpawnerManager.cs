@@ -3,54 +3,44 @@ using UnityEngine;
 
 public class SpawnerManager : MonoBehaviour
 {
-    // =========================
-    //         SPAWNERS
-    // =========================
     [Header("Spawners")]
-    public EnemySpawner[] spawners;
+    public EnemySpawner[] spawners;   // Assign Spawner ทั้งหมดใน Inspector
 
-    // =========================
-    //       SPAWN TIMING
-    // =========================
-    [Header("Spawn Timing (Inspector)")]
+    [Header("Spawn Timing")]
     public float minCooldown = 1f;
     public float maxCooldown = 3f;
 
-    // =========================
-    //         STATE
-    // =========================
     private Coroutine spawnRoutine;
     private bool isSpawning = false;
 
-    // =========================
-    //          START
-    // =========================
     void Start()
     {
-        StopSpawning();   // ❌ ไม่ spawn ตอนเริ่มเกม
+        // ❌ ไม่ spawn ตอนเริ่มเกม
+        StopSpawning();
+
+        if (spawners == null || spawners.Length == 0)
+            Debug.LogWarning("No spawners assigned in SpawnerManager!");
     }
 
     // =========================
     //       PUBLIC API
     // =========================
+
+    // ✅ เรียกจาก CountdownTimer ตอนกด NEXT
     public void StartSpawning()
     {
-        if (isSpawning) return;
-
-        if (spawners == null || spawners.Length == 0)
-        {
-            Debug.LogWarning("SpawnerManager: No spawners assigned!");
-            return;
-        }
+        if (isSpawning) return;   // กัน start ซ้ำ
 
         isSpawning = true;
         spawnRoutine = StartCoroutine(SpawnRoutine());
 
-        Debug.Log("SpawnerManager: START spawning");
+        Debug.Log("SpawnerManager: START spawning (Inspector values)");
     }
 
     public void StopSpawning()
     {
+        if (!isSpawning) return;
+
         if (spawnRoutine != null)
         {
             StopCoroutine(spawnRoutine);
@@ -58,14 +48,10 @@ public class SpawnerManager : MonoBehaviour
         }
 
         isSpawning = false;
+        Debug.Log("SpawnerManager: STOP spawning");
     }
 
-    public void RestartSpawning()
-    {
-        StopSpawning();
-        StartSpawning();
-    }
-
+    // ✅ เปลี่ยนค่า spawn จากโค้ด (ยังใช้ Inspector เป็นค่าเริ่ม)
     public void ChangeSpawnRate(float newMin, float newMax)
     {
         minCooldown = newMin;
@@ -74,8 +60,14 @@ public class SpawnerManager : MonoBehaviour
         RestartSpawning();
     }
 
+    public void RestartSpawning()
+    {
+        StopSpawning();
+        StartSpawning();
+    }
+
     // =========================
-    //        SPAWN LOOP
+    //       SPAWN LOOP
     // =========================
     IEnumerator SpawnRoutine()
     {
@@ -90,26 +82,30 @@ public class SpawnerManager : MonoBehaviour
         }
     }
 
-    // =========================
-    //        SPAWN
-    // =========================
     void SpawnFromRandomSpawner()
     {
-        if (spawners.Length == 0) return;
+        if (spawners == null || spawners.Length == 0) return;
 
         int index = Random.Range(0, spawners.Length);
         EnemySpawner spawner = spawners[index];
 
-        if (spawner == null) return;
+        // กัน null
+        if (spawner == null)
+        {
+            Debug.LogWarning("Spawner is null, skipping spawn.");
+            return;
+        }
 
         GameObject enemy = spawner.Spawn();
 
+        // ปรับค่าเพิ่มเติมกับ Enemy ถ้าต้องการ
         if (enemy != null)
         {
             EnemyMovement em = enemy.GetComponent<EnemyMovement>();
             if (em != null)
             {
-                em.moveSpeed = em.moveSpeed;   // ใช้ค่าที่ตั้งจาก Prefab
+                // ตอนนี้ยังไม่เปลี่ยนค่าใด ๆ (ไว้ต่อยอดได้)
+                em.moveSpeed = em.moveSpeed;
             }
         }
     }
