@@ -43,23 +43,30 @@ public class QuizControll : MonoBehaviour
         StartQuiz();
     }
 
-    public void StartQuiz()
+
+    public void ResetState()
     {
         currentQuestionIndex = 0;
         score = 0;
         playerAnswers.Clear();
+
         sensorLocked = false;
         waitForRelease = false;
         waitingForShowResult = false;
         waitingForNextQuestion = false;
+        lastSelectedAnswer = '\0';
 
-        if (quizPanel != null)
-            quizPanel.SetActive(true);
+        if (quizPanel != null) quizPanel.SetActive(true);
         if (correctPanel != null) correctPanel.SetActive(false);
         if (wrongPanel != null) wrongPanel.SetActive(false);
-
+    }
+    public void StartQuiz()
+    {
+        ResetState();
         ShowQuestion(currentQuestionIndex);
     }
+
+
 
     void Update()
     {
@@ -105,7 +112,6 @@ public class QuizControll : MonoBehaviour
     {
         if (index >= questions.Length)
         {
-            // ข้อสุดท้ายจบ Quiz
             GoToWaitScreen();
             return;
         }
@@ -115,9 +121,17 @@ public class QuizControll : MonoBehaviour
             questionImage.sprite = q.questionSprite;
 
         Debug.Log($"Showing question {index + 1}");
+
+        // Reset sensor lock สำหรับคำถามใหม่
         sensorLocked = false;
         waitForRelease = false;
+        waitingForShowResult = false;
+        waitingForNextQuestion = false;
+
+        if (correctPanel != null) correctPanel.SetActive(false);
+        if (wrongPanel != null) wrongPanel.SetActive(false);
     }
+
 
     void CheckInput()
     {

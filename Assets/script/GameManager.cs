@@ -12,13 +12,12 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        // Singleton
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else if (Instance != this)
+        else
         {
             Destroy(gameObject);
             return;
@@ -27,8 +26,7 @@ public class GameManager : MonoBehaviour
 
     void OnEnable()
     {
-        // ป้องกัน subscribe ซ้ำ
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded -= OnSceneLoaded; // ป้องกัน subscribe ซ้ำ
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -59,8 +57,11 @@ public class GameManager : MonoBehaviour
     // ============================
     public void Restart()
     {
-        StartCoroutine(LoadSceneAsync(SceneManager.GetActiveScene().buildIndex));
+        // รีโหลด Scene ปัจจุบัน
+        // ไม่จำเป็นต้อง destroy GameManager เพราะมัน Singleton
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 
     // ============================
     // ไป Wait Screen
@@ -105,5 +106,6 @@ public class GameManager : MonoBehaviour
     // ============================
     // Character ชั่วคราว
     // ============================
-    
+    public GameObject GetCharacter() => character;
+    public void SetCharacter(GameObject obj) => character = obj;
 }
