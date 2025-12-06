@@ -15,7 +15,7 @@ public class SpawnerManager : MonoBehaviour
 
     void Start()
     {
-        // ❌ ไม่ให้ spawn ตอนเริ่มเกม
+        // ❌ ไม่ spawn ตอนเริ่มเกม
         StopSpawning();
     }
 
@@ -26,10 +26,11 @@ public class SpawnerManager : MonoBehaviour
     // ✅ เรียกจาก CountdownTimer ตอนกด NEXT
     public void StartSpawning()
     {
-        if (isSpawning) return;   // กันซ้ำ
+        if (isSpawning) return;   // กัน start ซ้ำ
 
         isSpawning = true;
         spawnRoutine = StartCoroutine(SpawnRoutine());
+
         Debug.Log("SpawnerManager: START spawning (Inspector values)");
     }
 
@@ -47,7 +48,7 @@ public class SpawnerManager : MonoBehaviour
         Debug.Log("SpawnerManager: STOP spawning");
     }
 
-    // ✅ ถ้าอยากปรับผ่านโค้ด ก็ได้ (แต่ยังใช้ Inspector default)
+    // ✅ เผื่ออยากปรับจากโค้ด
     public void ChangeSpawnRate(float newMin, float newMax)
     {
         minCooldown = newMin;
@@ -65,20 +66,17 @@ public class SpawnerManager : MonoBehaviour
     // =========================
     //       SPAWN LOOP
     // =========================
+
     IEnumerator SpawnRoutine()
     {
         while (true)
         {
-            // ✅ ใช้ค่าที่ตั้งใน Inspector
+            // ✅ ใช้ค่าจาก Inspector
             float delay = Random.Range(minCooldown, maxCooldown);
-<<<<<<< Updated upstream
 
-            // ✅ ไม่โดน Time.timeScale = 0
+            // ✅ ใช้ Realtime → ไม่โดน Time.timeScale = 0
             yield return new WaitForSecondsRealtime(delay);
 
-=======
-            yield return new WaitForSecondsRealtime(delay); // ✅ ใช้ Realtime
->>>>>>> Stashed changes
             SpawnFromRandomSpawner();
         }
     }
@@ -97,18 +95,5 @@ public class SpawnerManager : MonoBehaviour
         }
 
         spawner.Spawn();
-    }
-    public void StartSpawning()
-    {
-        if (spawnRoutine != null)
-        {
-            StopCoroutine(spawnRoutine);
-            spawnRoutine = null;
-        }
-
-        // เริ่ม Coroutine ใหม่ด้วยค่า cooldown ปัจจุบัน
-        spawnRoutine = StartCoroutine(SpawnRoutine(minCooldown, maxCooldown));
-
-        Debug.Log("SpawnerManager: Spawning started.");
     }
 }
