@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 using System.Collections;
 
@@ -157,6 +157,7 @@ public class CountdownTimer : MonoBehaviour
         yield return new WaitForSecondsRealtime(orcaInputDelay);
         allowOrcaInput = true;
         sensorLocked = false;
+        Debug.Log("ORCA INPUT ENABLED");
     }
 
     public void OnOrcaNext()
