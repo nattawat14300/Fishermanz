@@ -7,9 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    // ============================
     // Temporary placeholder for Character/GameObject
-    // ============================
     public GameObject character;
 
     void Awake()
@@ -20,7 +18,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
             return;
@@ -29,6 +27,8 @@ public class GameManager : MonoBehaviour
 
     void OnEnable()
     {
+        // ป้องกัน subscribe ซ้ำ
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -42,7 +42,6 @@ public class GameManager : MonoBehaviour
         if (scene.name == "Quiz")
         {
             QuizControll quizController = FindFirstObjectByType<QuizControll>();
-
             if (quizController != null)
             {
                 quizController.StartQuiz();
@@ -60,8 +59,7 @@ public class GameManager : MonoBehaviour
     // ============================
     public void Restart()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        StartCoroutine(LoadSceneAsync(SceneManager.GetActiveScene().buildIndex));
     }
 
     // ============================
@@ -69,18 +67,43 @@ public class GameManager : MonoBehaviour
     // ============================
     public void WaitScreen()
     {
-        SceneManager.LoadScene("WaitScreen");
+        StartCoroutine(LoadSceneAsync("WaitScreen"));
+    }
+
+    // ============================
+    // ไป Quiz Scene
+    // ============================
+    public void Quiz()
+    {
+        StartCoroutine(LoadSceneAsync("Quiz"));
+    }
+
+    // ============================
+    // Coroutine โหลด Scene Async
+    // ============================
+    private IEnumerator LoadSceneAsync(object scene)
+    {
+        // scene อาจเป็น int หรือ string
+        AsyncOperation op = null;
+        if (scene is int)
+            op = SceneManager.LoadSceneAsync((int)scene);
+        else if (scene is string)
+            op = SceneManager.LoadSceneAsync((string)scene);
+
+        if (op == null)
+            yield break;
+
+        // รอโหลดจบ
+        while (!op.isDone)
+        {
+            yield return null;
+        }
+
+        yield return null;
     }
 
     // ============================
     // Character ชั่วคราว
     // ============================
-    public GameObject GetCharacter() => character;
-
-    public void SetCharacter(GameObject obj) => character = obj;
-
-    public void Quiz()
-    {
-        SceneManager.LoadScene("Quiz");
-    }
+    
 }
