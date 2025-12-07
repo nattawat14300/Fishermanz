@@ -3,8 +3,6 @@ using UnityEngine.UI;
 
 public class HealthDisplay : MonoBehaviour
 {
-    public int health;
-    public int maxHealth;
     public Sprite emptyHeart;
     public Sprite fullHeart;
     public Image[] hearts;
@@ -12,6 +10,18 @@ public class HealthDisplay : MonoBehaviour
     private PlayerHealth playerHealth;
 
     void Start()
+    {
+        FindPlayer();
+        UpdateHearts();
+    }
+
+    void Update()
+    {
+        if (playerHealth == null) return;
+        UpdateHearts();
+    }
+
+    void FindPlayer()
     {
         playerHealth = FindObjectOfType<PlayerHealth>();
 
@@ -21,11 +31,14 @@ public class HealthDisplay : MonoBehaviour
         }
     }
 
-    void Update()
+    void UpdateHearts()
     {
-        if (playerHealth == null || hearts.Length == 0) return;
+        if (playerHealth == null)
+            playerHealth = FindObjectOfType<PlayerHealth>();
 
-        int health = playerHealth.health;      // property health ใน PlayerHealth
+        if (playerHealth == null) return;
+
+        int health = playerHealth.health;
         int maxHealth = playerHealth.maxHealth;
 
         for (int i = 0; i < hearts.Length; i++)
@@ -33,16 +46,21 @@ public class HealthDisplay : MonoBehaviour
             if (i < maxHealth)
             {
                 hearts[i].gameObject.SetActive(true);
-
-                if (i < health)
-                    hearts[i].sprite = fullHeart;
-                else
-                    hearts[i].sprite = emptyHeart;
+                hearts[i].sprite = (i < health) ? fullHeart : emptyHeart;
             }
             else
             {
                 hearts[i].gameObject.SetActive(false);
             }
         }
+    }
+
+    // ========================
+    // สำหรับเรียกตอน Restart
+    // ========================
+    public void ResetDisplay()
+    {
+        FindPlayer();
+        UpdateHearts();
     }
 }

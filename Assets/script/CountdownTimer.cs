@@ -10,6 +10,7 @@ public class CountdownTimer : MonoBehaviour
     [Header("Timer")]
     public TextMeshProUGUI timerText;
     public float remainingTime = 120f;
+
     private float startingTime;
     private float elapsedTime;
 
@@ -23,8 +24,11 @@ public class CountdownTimer : MonoBehaviour
     public bool enableOrca = true;
     public float orcaTime = 60f;
     public float orcaInputDelay = 3f;
+
     private bool orcaShown = false;
+    private bool orcaCompleted = false;
     private bool allowOrcaInput = false;
+    private bool waitForSensorRelease = false;
 
     // =========================
     //         SENSOR
@@ -32,7 +36,6 @@ public class CountdownTimer : MonoBehaviour
     [Header("Sensor Input")]
     public ForcePadReader pad;
     public float threshold = 50f;
-    private bool sensorLocked = false;
 
     // =========================
     //         PANELS
@@ -64,11 +67,6 @@ public class CountdownTimer : MonoBehaviour
         spawner = FindObjectOfType<SpawnerManager>();
         music = FindObjectOfType<MusicManager>();
 
-        if (spawner == null)
-            Debug.LogError("SpawnerManager not found!");
-        if (music == null)
-            Debug.LogWarning("MusicManager not found!");
-
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (orcaPanel != null) orcaPanel.SetActive(false);
@@ -83,19 +81,24 @@ public class CountdownTimer : MonoBehaviour
         // =========================
         //        ORCA MODE
         // =========================
-        if (orcaShown && orcaPanel != null && orcaPanel.activeSelf)
+        if (orcaShown)
         {
             if (!allowOrcaInput) return;
 
             bool keyPressed = Input.anyKeyDown || Input.GetMouseButtonDown(0);
             bool sensorPressed = IsAnySensorPressed();
 
-            if (!sensorPressed)
-                sensorLocked = false;
-
-            if ((keyPressed || sensorPressed) && !sensorLocked)
+            // ✅ ต้องปล่อย sensor ก่อน
+            if (waitForSensorRelease)
             {
-                sensorLocked = true;
+                if (!sensorPressed)
+                    waitForSensorRelease = false;
+
+                return;
+            }
+
+            if (keyPressed || sensorPressed)
+            {
                 OnOrcaNext();
             }
 
@@ -111,7 +114,7 @@ public class CountdownTimer : MonoBehaviour
         // =========================
         //       TRIGGER ORCA
         // =========================
-        if (enableOrca && !orcaShown && elapsedTime >= orcaTime)
+        if (enableOrca && !orcaShown && !orcaCompleted && elapsedTime >= orcaTime)
         {
             TriggerOrca();
             return;
@@ -139,7 +142,7 @@ public class CountdownTimer : MonoBehaviour
         orcaShown = true;
         timerRunning = false;
         allowOrcaInput = false;
-        sensorLocked = true;
+        waitForSensorRelease = true;
 
         if (orcaPanel != null)
             orcaPanel.SetActive(true);
@@ -156,11 +159,16 @@ public class CountdownTimer : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(orcaInputDelay);
         allowOrcaInput = true;
-        sensorLocked = false;
     }
 
     public void OnOrcaNext()
     {
+        // ✅ ปิด Orca แบบสมบูรณ์
+        orcaShown = false;
+        orcaCompleted = true;
+        allowOrcaInput = false;
+        waitForSensorRelease = false;
+
         if (orcaPanel != null)
             orcaPanel.SetActive(false);
 
@@ -171,7 +179,6 @@ public class CountdownTimer : MonoBehaviour
         if (music != null)
             music.PlayAfterOrca();
 
-        // ✅ Start Spawner เมื่อกด NEXT
         if (spawner != null)
             spawner.StartSpawning();
 
@@ -181,7 +188,7 @@ public class CountdownTimer : MonoBehaviour
     // =========================
     //          ENDING
     // =========================
-    private void OnTimeUp()
+    void OnTimeUp()
     {
         if (gameEnded) return;
 
@@ -234,14 +241,21 @@ public class CountdownTimer : MonoBehaviour
                pad.f5 > threshold;
     }
 
+    // =========================
+    //         RESET
+    // =========================
     public void ResetTimer()
     {
         gameEnded = false;
         playerAlive = true;
         timerRunning = false;
+
         remainingTime = startingTime;
+
         orcaShown = false;
+        orcaCompleted = false;
         allowOrcaInput = false;
+        waitForSensorRelease = false;
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
@@ -249,6 +263,4 @@ public class CountdownTimer : MonoBehaviour
 
         IsGameReady = false;
     }
-
 }
-

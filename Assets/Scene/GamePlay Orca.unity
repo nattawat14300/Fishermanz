@@ -2758,7 +2758,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1364453851}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Quiz
+        m_MethodName: LoadQuiz
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3819,7 +3819,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1364453851}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: WaitScreen
+        m_MethodName: LoadWaitScreen
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4170,10 +4170,10 @@ MonoBehaviour:
   remainingTime: 120
   orcaPanel: {fileID: 623594507}
   enableOrca: 1
-  orcaTime: 55
+  orcaTime: 60
   orcaInputDelay: 3
   pad: {fileID: 1870824958}
-  threshold: 30
+  threshold: 50
   winPanel: {fileID: 1588305698}
   losePanel: {fileID: 165416537}
 --- !u!4 &1300491966
@@ -4220,8 +4220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 844a38ff4d7837244b42e5c14dbec029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 1448744231}
-  gameOverUI: {fileID: 165416537}
+  character: {fileID: 0}
 --- !u!4 &1364453852
 Transform:
   m_ObjectHideFlags: 0
@@ -4967,7 +4966,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.05, y: 1.6}
+  m_Size: {x: 0.59, y: 1.16}
   m_EdgeRadius: 0
 --- !u!50 &1448744238
 Rigidbody2D:
@@ -5008,8 +5007,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126e0e44d7bea3a468f819b9ede7d590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 3
-  maxHealth: 3
   emptyHeart: {fileID: 1055529588, guid: a839b4cae88575c428883ffee2c22322, type: 3}
   fullHeart: {fileID: -254846616, guid: 78d5893050642d3408a4617afda21910, type: 3}
   hearts:
@@ -5051,8 +5048,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 3
   disableOnDeath: 1
-  playerSprite: {fileID: 0}
-  playerMovement: {fileID: 0}
+  playerSprite: {fileID: 1448744232}
+  playerMovement: {fileID: 1448744243}
   playerCollider: {fileID: 1448744237}
 --- !u!114 &1448744243
 MonoBehaviour:

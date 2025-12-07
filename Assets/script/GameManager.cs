@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f; // รีเซ็ต TimeScale
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene("GamePlay Orca");
     }
 
     // =========================
