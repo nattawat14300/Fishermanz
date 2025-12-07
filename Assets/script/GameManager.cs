@@ -2,38 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    void Awake()
+    private void Awake()
     {
-        // Singleton
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        // Singleton ที่ปลอดภัยจริง
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log("Scene Loaded: " + scene.name);
+
+        // ✅ รีเซ็ตเวลาเสมอเมื่อเปลี่ยน Scene
+        Time.timeScale = 1f;
+
         if (scene.name == "Quiz")
         {
             QuizControll quizController = FindFirstObjectByType<QuizControll>();
@@ -41,29 +44,42 @@ public class GameManager : MonoBehaviour
             if (quizController != null)
             {
                 quizController.StartQuiz();
-                Debug.Log("Quiz started automatically after scene load.");
+                Debug.Log("✅ Quiz started automatically after scene load.");
             }
             else
             {
-                Debug.LogError("QuizController not found in the new scene!");
+                Debug.LogError("❌ QuizController not found in the new scene!");
             }
         }
     }
 
+    // ===============================
+    // ✅ RESTART (แก้จุดพังหลัก)
+    // ===============================
     public void Restart()
     {
+        Debug.Log("🔄 Restart Game");
+
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        // ✅ รีโหลด Scene ปัจจุบันแบบชัวร์ ๆ
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void WaitScreen()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("WaitScreen");
     }
 
-    // ✅ แก้ Character เป็น GameObject ชั่วคราว
+    // ===============================
+    // ✅ SCENE TRANSITION
+    // ===============================
     public void StartSceneTransition(string sceneName, GameObject characterToStore)
     {
+        Time.timeScale = 1f;
+
         if (characterToStore != null)
         {
             StoreCharacterData(characterToStore);
@@ -73,20 +89,18 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("Character is null during scene transition. Skipping data storage.");
         }
 
-        // ✅ ใช้ SceneManager แทน SceneLoader
         SceneManager.LoadScene(sceneName);
     }
 
-    // ✅ เพิ่มเมธอดนี้เพื่อไม่ให้ Error
     void StoreCharacterData(GameObject character)
     {
         Debug.Log("Storing character data: " + character.name);
-        // คุณสามารถเพิ่มระบบ Save จริงตรงนี้ภายหลังได้
+        // ขยายระบบ Save เพิ่มได้ภายหลัง
     }
 
     public void GoToQuizScene()
     {
-        //Time.timeScale = 1f; // กรณีเกมถูกหยุดไว้
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Quiz");
     }
 }
