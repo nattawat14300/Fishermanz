@@ -8,6 +8,7 @@ public class StartInfoManager : MonoBehaviour
     private int currentIndex = 0;
     private bool introActive = true;
 
+
     [Header("Sensor Input")]
     public ForcePadReader pad;
     public float threshold = 300f;

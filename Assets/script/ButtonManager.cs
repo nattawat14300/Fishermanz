@@ -41,4 +41,16 @@ public class ButtonManager : MonoBehaviour
             Debug.LogError("❌ GameManager Instance not found!");
         }
     }
+
+    public void QuizScreen()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GoToQuizScene();
+        }
+        else
+        {
+            Debug.LogError("❌ GameManager Instance not found!");
+        }
+    }
 }

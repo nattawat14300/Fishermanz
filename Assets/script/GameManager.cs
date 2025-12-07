@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,9 +5,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    private bool isLoadingScene = false;
+
+    // ===============================
+    //           AWAKE
+    // ===============================
     private void Awake()
     {
-        // Singleton ที่ปลอดภัยจริง
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -20,8 +22,12 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    // ===============================
+    //        SCENE EVENT (SAFE)
+    // ===============================
     private void OnEnable()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded; // ✅ กันซ้อน
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -32,75 +38,82 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log("Scene Loaded: " + scene.name);
+        Debug.Log("✅ Scene Loaded: " + scene.name);
 
-        // ✅ รีเซ็ตเวลาเสมอเมื่อเปลี่ยน Scene
         Time.timeScale = 1f;
+        isLoadingScene = false; // ✅ reset ทุกครั้งที่โหลด scene เสร็จ
 
         if (scene.name == "Quiz")
         {
-            QuizControll quizController = FindFirstObjectByType<QuizControll>();
-
-            if (quizController != null)
+            QuizControll quiz = FindFirstObjectByType<QuizControll>();
+            if (quiz != null)
             {
-                quizController.StartQuiz();
-                Debug.Log("✅ Quiz started automatically after scene load.");
+                quiz.StartQuiz();
             }
             else
             {
-                Debug.LogError("❌ QuizController not found in the new scene!");
+                Debug.LogError("❌ QuizControll not found");
             }
         }
     }
 
     // ===============================
-    // ✅ RESTART (แก้จุดพังหลัก)
+    //           RESTART
     // ===============================
     public void Restart()
     {
+        if (isLoadingScene) return;
+
         Debug.Log("🔄 Restart Game");
 
+        isLoadingScene = true;
         Time.timeScale = 1f;
 
-        // ✅ รีโหลด Scene ปัจจุบันแบบชัวร์ ๆ
-        Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.buildIndex);
+        Scene current = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(current.buildIndex);
     }
 
+    // ===============================
+    //           QUIZ
+    // ===============================
+    public void GoToQuizScene()
+    {
+        if (isLoadingScene) return; // ✅ กดได้ครั้งเดียว
+
+        Debug.Log("➡️ Go To Quiz Scene");
+
+        isLoadingScene = true;
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Quiz");
+    }
+
+    // ===============================
+    //         WAIT SCREEN
+    // ===============================
     public void WaitScreen()
     {
+        if (isLoadingScene) return;
+
+        isLoadingScene = true;
         Time.timeScale = 1f;
         SceneManager.LoadScene("WaitScreen");
     }
 
     // ===============================
-    // ✅ SCENE TRANSITION
+    //      GENERIC TRANSITION
     // ===============================
-    public void StartSceneTransition(string sceneName, GameObject characterToStore)
+    public void StartSceneTransition(string sceneName, GameObject characterToStore = null)
     {
+        if (isLoadingScene) return;
+
+        isLoadingScene = true;
         Time.timeScale = 1f;
 
         if (characterToStore != null)
         {
-            StoreCharacterData(characterToStore);
-        }
-        else
-        {
-            Debug.LogWarning("Character is null during scene transition. Skipping data storage.");
+            Debug.Log("Storing character data: " + characterToStore.name);
         }
 
         SceneManager.LoadScene(sceneName);
-    }
-
-    void StoreCharacterData(GameObject character)
-    {
-        Debug.Log("Storing character data: " + character.name);
-        // ขยายระบบ Save เพิ่มได้ภายหลัง
-    }
-
-    public void GoToQuizScene()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Quiz");
     }
 }
