@@ -14,8 +14,7 @@ public class StartGameByAnySensor : MonoBehaviour
         if (started || pad == null) return;
 
         // ✅ ถ้าแตะ sensor ตัวใดก็ตาม
-        if (pad.f1 > threshold || pad.f2 > threshold || pad.f3 > threshold ||
-            pad.f4 > threshold || pad.f5 > threshold)
+        if ((pad.f1 > threshold || pad.f2 > threshold) ||(pad.f3 > threshold || pad.f4 > threshold))
         {
             StartGame();
         }

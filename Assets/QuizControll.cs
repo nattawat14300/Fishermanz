@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class QuizControll : MonoBehaviour
 {
@@ -11,8 +12,11 @@ public class QuizControll : MonoBehaviour
     [Header("Result Panels")]
     public GameObject panelTrue;
     public GameObject panelFalse;
-    private bool waitingToHidePanel = false;
 
+    [Header("End Settings")]
+    public string nextSceneName = "WaitScreen";   // ซีนถัดไปเมื่อจบ Quiz
+    public float answerShowTime = 2f;              // เวลาค้าง panel ถูก/ผิด
+    public float endShowTime = 5f;                 // เวลาที่ค้าง panel สุดท้าย
 
     [System.Serializable]
     public class Question
@@ -28,16 +32,9 @@ public class QuizControll : MonoBehaviour
     public float threshold = 50f;
 
     private int currentQuestionIndex = 0;
-    
-
-    private bool quizActive = false;
-    private bool waitingForNext = false;
     private bool sensorLocked = false;
-    private bool waitForRelease = false;   // ✅ เพิ่ม
 
-    // =========================
-    // Start
-    // =========================
+
     void Start()
     {
         quizPanel.SetActive(true);
@@ -47,64 +44,33 @@ public class QuizControll : MonoBehaviour
         StartQuiz();
     }
 
-    // =========================
-    // PUBLIC: Allow GameManager Call
-    // =========================
     public void StartQuiz()
     {
         currentQuestionIndex = 0;
-     
-        quizActive = true;
-        waitingForNext = false;
-        sensorLocked = false;
-        waitForRelease = false;
         ShowQuestion();
     }
 
-    // =========================
-    // Show Question
-    // =========================
     void ShowQuestion()
     {
-        panelTrue.SetActive(false);
-        panelFalse.SetActive(false);
-
         if (currentQuestionIndex >= questions.Length)
         {
-            ReturnToFirstScene();
+            Debug.Log("Quiz Finished → Going to next scene");
+            StartCoroutine(EndAndLoadScene());
             return;
         }
 
         questionImage.sprite = questions[currentQuestionIndex].questionSprite;
-
-        quizActive = true;
-        waitingForNext = false;
-        waitingToHidePanel = false;
-        sensorLocked = true;    // ป้องกัน double input frame แรก
-        waitForRelease = true; // ต้องปล่อยก่อนกด
+        sensorLocked = true; // กันปุ่มเด้งตอนเริ่มแสดงคำถาม
     }
 
-    // =========================
-    // Update Loop
-    // =========================
     void Update()
     {
+        CheckSensorRelease();
 
-        CheckRelease();   // ✅ ให้ทำตลอด
-
-        if (quizActive && !sensorLocked)
+        if (!sensorLocked)
             CheckAnswerInput();
-
-        if ((waitingToHidePanel || waitingForNext) && !sensorLocked)
-            CheckNextInput();
     }
 
-    // =========================
-    // Answer Mapping
-    // f4 = A
-    // f3 = B
-    // f5 = C
-    // =========================
     void CheckAnswerInput()
     {
         char selected = '\0';
@@ -116,43 +82,50 @@ public class QuizControll : MonoBehaviour
             else if (pad.f5 > threshold) selected = 'C';
         }
 
-        if (selected != '\0' && !sensorLocked)
+        if (selected != '\0')
         {
             sensorLocked = true;
-            waitForRelease = true;
             ProcessAnswer(selected);
         }
     }
 
-    // =========================
-    // Process Answer
-    // =========================
     void ProcessAnswer(char selected)
     {
-        quizActive = false;
-
         bool correct = selected == questions[currentQuestionIndex].correctAnswer;
 
-        if (correct)
-        {
-            panelTrue.SetActive(true);
-            panelFalse.SetActive(false);
-        }
-        else
-        {
-            panelTrue.SetActive(false);
-            panelFalse.SetActive(true);
-        }
+        panelTrue.SetActive(correct);
+        panelFalse.SetActive(!correct);
 
-        waitingToHidePanel = true;   
-    waitingForNext = false;
-        sensorLocked = true;
+        // เริ่ม coroutine สำหรับเปลี่ยนข้อ
+        StartCoroutine(DelayNextQuestion());
     }
 
-    // =========================
-    // Press Any Pad → Next
-    // =========================
-    void CheckNextInput()
+    IEnumerator DelayNextQuestion()
+    {
+        // ค้าง panel 2 วิ
+        yield return new WaitForSeconds(answerShowTime);
+
+        // ปิด panel
+        panelTrue.SetActive(false);
+        panelFalse.SetActive(false);
+
+        // ข้อต่อไป
+        currentQuestionIndex++;
+
+        // แสดงคำถามใหม่
+        ShowQuestion();
+    }
+
+    IEnumerator EndAndLoadScene()
+    {
+        // ค้าง panel 5 วิ (แสดง panel True/False ล่าสุด)
+        yield return new WaitForSeconds(endShowTime);
+
+        // โหลดซีนใหม่
+        SceneManager.LoadScene(nextSceneName);
+    }
+
+    void CheckSensorRelease()
     {
         if (pad == null) return;
 
@@ -166,86 +139,6 @@ public class QuizControll : MonoBehaviour
         if (!pressed)
         {
             sensorLocked = false;
-            return;
         }
-
-        if (sensorLocked) return;
-
-        sensorLocked = true;
-
-        // ✅ STEP 1: ยังไม่ปิด Panel → ปิดก่อน
-        if (waitingToHidePanel)
-        {
-            HideResultPanel();
-            return;
-        }
-
-        // ✅ STEP 2: ปิดแล้ว → ไปข้อถัดไป
-        if (waitingForNext)
-        {
-            NextQuestion();
-        }
-    }
-    void HideResultPanel()
-    {
-        panelTrue.SetActive(false);
-        panelFalse.SetActive(false);
-
-        waitingToHidePanel = false;
-        waitingForNext = true;
-    }
-
-    void NextQuestion()
-    {
-        // ✅ ปิด Panel ทันที (ก่อนเปลี่ยนคำถาม)
-        panelTrue.SetActive(false);
-        panelFalse.SetActive(false);
-
-        waitingForNext = false;
-        waitingToHidePanel = false;
-        quizActive = true;
-
-        currentQuestionIndex++;
-        ShowQuestion();  // ✅ แสดง Q ใหม่หลัง Panel หายชัวร์
-    }
-
-    // =========================
-    // Wait until sensor released
-    // =========================
-    void CheckRelease()
-    {
-        if (!IsAnySensorPressed())
-        {
-            waitForRelease = false;
-            sensorLocked = false;
-        }
-    }
-
-    // =========================
-    // Check Any Sensor
-    // =========================
-    bool IsAnySensorPressed()
-    {
-        return
-            pad != null &&
-            (pad.f1 > threshold ||
-             pad.f2 > threshold ||
-             pad.f3 > threshold ||
-             pad.f4 > threshold ||
-             pad.f5 > threshold);
-    }
-
-    // =========================
-    // Next Question or End
-    // =========================
- 
-
-
-    // =========================
-    // Return Scene
-    // =========================
-    void ReturnToFirstScene()
-    {
-        SceneManager.LoadScene(0);
     }
 }
