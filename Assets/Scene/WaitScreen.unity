@@ -600,7 +600,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: dcd724e245ee7e14d98062e06a75dfa5, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 161f2c9c21e6ca141a26efa3e2b491b9, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1029,7 +1029,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pad: {fileID: 436015993}
-  threshold: 300
+  threshold: 200
   gameplaySceneName: GamePlay Orca
 --- !u!4 &2141939840
 Transform:

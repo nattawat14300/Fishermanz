@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviour
     private bool allowInput = false;
     private bool sensorConsumed = false;
 
+    private int totoalScore;
+
     [System.Serializable]
     public struct FishUIPanel
     {
@@ -31,6 +33,9 @@ public class UIManager : MonoBehaviour
     private Coroutine hideInfoCoroutine;
     private GameObject currentActivePanel = null;
 
+    public TextMeshProUGUI scoreText;
+    public Prey prey;
+
     void Start()
     {
         foreach (FishUIPanel panelProfile in fishPanels)
@@ -40,6 +45,12 @@ public class UIManager : MonoBehaviour
         }
 
         Time.timeScale = 1f;
+
+        // ✅ ใช้ static variable ถูกวิธี
+        totoalScore = Prey.totalScore;
+
+        // ✅ แสดงคะแนนบน UI ตั้งแต่เริ่ม
+        UpdateScoreUI();
     }
 
     public void DisplayFishInfoByName(string targetFishName)
@@ -143,5 +154,23 @@ public class UIManager : MonoBehaviour
                pad.f3 > threshold ||
                pad.f4 > threshold ||
                pad.f5 > threshold;
+    }
+
+    void UpdateScoreUI()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Score : " + totoalScore;
+        }
+        else
+        {
+            Debug.LogWarning("Score Text is not assigned in Prey!");
+        }
+    }
+
+    public void RefreshScore()
+    {
+        totoalScore = Prey.totalScore;
+        UpdateScoreUI();
     }
 }

@@ -54,22 +54,29 @@ public class QuizControll : MonoBehaviour
     {
         if (currentQuestionIndex >= questions.Length)
         {
+            sensorLocked = true;      // ล็อก input ทันที
             Debug.Log("Quiz Finished → Going to next scene");
             StartCoroutine(EndAndLoadScene());
             return;
         }
 
         questionImage.sprite = questions[currentQuestionIndex].questionSprite;
-        sensorLocked = true; // กันปุ่มเด้งตอนเริ่มแสดงคำถาม
+        sensorLocked = true; // กันปุ่มเด้ง
     }
+
 
     void Update()
     {
+        // ถ้าเกินจำนวนข้อแล้ว ไม่ต้องรับ input อีก
+        if (currentQuestionIndex >= questions.Length)
+            return;
+
         CheckSensorRelease();
 
         if (!sensorLocked)
             CheckAnswerInput();
     }
+
 
     void CheckAnswerInput()
     {
@@ -91,14 +98,17 @@ public class QuizControll : MonoBehaviour
 
     void ProcessAnswer(char selected)
     {
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= questions.Length)
+            return; // กัน index หลุด
+
         bool correct = selected == questions[currentQuestionIndex].correctAnswer;
 
         panelTrue.SetActive(correct);
         panelFalse.SetActive(!correct);
 
-        // เริ่ม coroutine สำหรับเปลี่ยนข้อ
         StartCoroutine(DelayNextQuestion());
     }
+
 
     IEnumerator DelayNextQuestion()
     {

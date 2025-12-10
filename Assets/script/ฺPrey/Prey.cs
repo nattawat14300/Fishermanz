@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Prey : MonoBehaviour
 {
@@ -59,6 +60,7 @@ public class Prey : MonoBehaviour
                 Die();
             }
         }
+        uiManager.RefreshScore();
     }
 
     private void OnBecameInvisible()

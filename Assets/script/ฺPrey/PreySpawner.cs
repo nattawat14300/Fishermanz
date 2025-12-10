@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class PreySpawner : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PreySpawner : MonoBehaviour
     [Header("Global Spawn Settings")]
     public float minSpawnDelay = 1f;
     public float maxSpawnDelay = 3f;
+
 
     // *** NEW: ตัวแปรสำหรับการกำหนดทิศทางของแต่ละ Spawner โดย Manager ***
     [Header("Individual Direction Settings")]
@@ -74,4 +76,5 @@ public class PreySpawner : MonoBehaviour
 
         Debug.Log($"Spawn rate updated to {newMinDelay}-{newMaxDelay} seconds.");
     }
+
 }

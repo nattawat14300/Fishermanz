@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class StartGameByAnySensor : MonoBehaviour
 {
     public ForcePadReader pad;
-    public float threshold = 300f;
+    public float threshold = 200f;
     public string gameplaySceneName = "GamePlay Orca"; // 👈 ใส่ชื่อ Scene ของคุณตรงนี้
 
     private bool started = false;
@@ -13,8 +13,13 @@ public class StartGameByAnySensor : MonoBehaviour
     {
         if (started || pad == null) return;
 
-        // ✅ ถ้าแตะ sensor ตัวใดก็ตาม
-        if ((pad.f1 > threshold || pad.f2 > threshold) ||(pad.f3 > threshold || pad.f4 > threshold))
+        bool allPressed =
+        pad.f1 > threshold &&
+        pad.f2 > threshold &&
+        pad.f4 > threshold &&
+        pad.f5 > threshold;
+
+        if (allPressed)
         {
             StartGame();
         }
@@ -24,6 +29,6 @@ public class StartGameByAnySensor : MonoBehaviour
     {
         started = true;
         Time.timeScale = 1f;
-        SceneManager.LoadScene(gameplaySceneName);
+        SceneManager.LoadScene("GamePlay Orca");
     }
 }
